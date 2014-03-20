@@ -426,3 +426,35 @@ app.post( '/post_new_user',
 	);
     }
 );
+
+app.get( '/admin/projet_mgt/:id',
+    function (req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_project_by_id( mysql_connection, req.params.id,
+		    function( projet ) {
+			backend.get_waiting_comments_count( mysql_connection, 
+			    function( waiting_comments ) {
+				res.render("projet_mgt_text_edition.ejs", {subjects : subjects, waiting_comments : waiting_comments, projet: projet[0] } );
+			    }
+			);
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_update_projet_text/:id',
+    function ( req, res ) {
+	auth_mgt(req, res,
+	    function() {
+		backend.update_projet_details( mysql_connection, mysql.escape( req.params.id ), mysql.escape( req.body.details ),
+		    function() {
+			res.redirect("/projets/"+req.params.id );
+		    }
+		);
+	    }
+	);
+    }
+);

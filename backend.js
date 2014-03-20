@@ -358,3 +358,16 @@ exports.create_user = function ( mysql_connection, login, pass, callback ) {
     );
     
 };
+
+exports.update_projet_details = function( mysql_connection, id, details, callback ) {
+    mysql_connection.query("UPDATE `projet` SET details="+details+" WHERE id="+id ,
+	function(err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( );
+	    }
+	}
+    );
+};
+
