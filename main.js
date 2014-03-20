@@ -43,6 +43,25 @@ var backend = require('./backend');
 
 var subjects = ["Web", "Software" , "Kernel", "Admin sys", "Divers"];
 
+// Let's manage sessions ^^
+
+app.use(express.cookieParser());
+app.use(express.session({secret: 'chibuya'}))
+
+// Usefull function to know if an admin is identified
+
+function is_authentified( req ) {
+    return (req.session.admin == 0);
+}
+
+function auth_mgt( req, res, callback ) {
+    if( is_authentified( req ) ) {
+	callback();
+    } else {
+	res.render("auth.ejs",{subjects: subjects} );
+    }
+}
+
 // And Here we will deal with what to do if a page gets visited
 
 app.get( '/', 
@@ -129,6 +148,35 @@ app.get( '/topics/:sub',
     }
 );
 
+app.get( '/projets',
+    function(req,res) {
+	backend.get_projects(mysql_connection, 
+	    function( projets ) {
+		res.render("projets.ejs", { subjects : subjects, projets : projets} );
+	    }
+	);
+    }
+);
+
+app.get('/projets/:projet_id',
+    function(req, res) {
+	var n = ~~Number( req.params.projet_id );
+	if( String(n) == req.params.projet_id ) {
+	    backend.get_project_by_id(mysql_connection, mysql.escape(req.params.projet_id),
+		function ( projets ) {
+		    if( projets.length == 0 ) {
+			res.render("404.ejs", {subjects : subjects} );
+		    } else {
+			res.render("projet.ejs",{ subjects : subjects, projet : projets[0]});
+		    }
+		}
+	    );
+	} else {
+	    res.render("404.ejs", {subjects : subjects} );
+	}
+    }
+);
+
 app.post( '/post_comment',
     function(req, res) {
 	var comment_title = mysql.escape(req.body.titre);
@@ -140,5 +188,211 @@ app.post( '/post_comment',
 	    backend.add_comment( mysql_connection, comment_title, comment_creator, comment_text, comment_article);
 	}
 	res.redirect('/article/'+n );
+    }
+);
+
+app.get( '/admin', 
+    function(req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_waiting_comments_count( mysql_connection,
+		    function( waiting_comments ) {
+			res.render("article_edition.ejs", {subjects : subjects, waiting_comments : waiting_comments} );
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_new_article',
+    function( req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.create_article( mysql_connection, mysql, req,
+		    function( insert_id ) {
+			res.redirect('/article/'+insert_id );
+		    }
+		);
+	    }
+	);
+    }
+);
+
+
+app.post( '/post_auth',
+    function( req, res ) {
+	if( ! is_authentified( req ) ) {
+	    var login = mysql.escape(req.body.login);
+	    var pass = req.body.pass;
+	    backend.certify_admin( mysql_connection, login,  pass,
+		function( b ) {
+		    if( b ) {
+			req.session.admin = 0;
+			res.redirect('/admin');
+		    }
+		}
+	    );
+	} else {
+	  res.redirect('/admin');
+	}
+    }
+);
+
+app.get( '/admin/projet_ed',
+    function (req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_waiting_comments_count( mysql_connection,
+		    function( waiting_comments ) {
+			res.render("projet_edition.ejs", {subjects : subjects, waiting_comments : waiting_comments} );
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_new_projet',
+    function ( req, res) {
+	var name = mysql.escape( req.body.name );
+	var summary = mysql.escape( req.body.summary );
+	var git_clone = mysql.escape( req.body.git_clone );
+	var ended = mysql.escape( req.body.ended );
+	var etat = mysql.escape( req.body.etat );
+	var progress = mysql.escape( req.body.progress );
+	var details = mysql.escape( req.body.details );
+	auth_mgt( req, res,
+	    function() {
+		backend.create_project( mysql_connection, name, summary, git_clone, ended, etat, progress, details,
+		    function(insertedId) {
+			res.redirect("/projets/"+insertedId);
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.get( '/admin/projet_mgt',
+    function (req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_waiting_comments_count( mysql_connection,
+		    function( waiting_comments ) {
+			backend.get_projects( mysql_connection, 
+			    function( projets ) {
+				res.render("projet_mgt.ejs", {subjects : subjects, waiting_comments : waiting_comments, projets: projets} );
+			    }
+			);
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_update_avancement/:id',
+    function (req, res) {
+        var progress = mysql.escape(req.body.progress);
+	var id = req.params.id;
+	auth_mgt(req, res,
+	    function() {
+		backend.projet_update_progress( mysql_connection, mysql.escape(id), progress,
+		    function () {
+			res.redirect("/admin/projet_mgt");
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_update_ended/:id',
+    function (req, res) {
+	var ended = mysql.escape(req.body.ended);
+	var id = req.params.id;
+	auth_mgt(req, res,
+	    function() {
+		backend.projet_update_ended( mysql_connection, mysql.escape(id), ended,
+		    function () {
+			res.redirect("/admin/projet_mgt");
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_update_etat/:id',
+    function (req, res) {
+	var etat = mysql.escape(req.body.etat);
+	var id = req.params.id;
+	auth_mgt(req, res,
+	    function() {
+		backend.projet_update_etat( mysql_connection, mysql.escape(id), etat,
+		    function () {
+			res.redirect("/admin/projet_mgt");
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.get( '/admin/comment_mgt',
+    function (req, res ) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_waiting_comments( mysql_connection,
+		    function( comments ) {
+			backend.get_waiting_comments_count( mysql_connection,
+			    function( waiting_comments ) {
+				res.render("comment_mgt.ejs", { subjects : subjects, waiting_comments : waiting_comments, comments : comments });
+			    }
+			);
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_accept_comment/:id',
+    function (req, res) {
+	var id = req.params.id;
+	auth_mgt(req, res,
+	    function() {
+		backend.accept_comment( mysql_connection, mysql.escape(id),
+		    function () {
+			res.redirect("/admin/comment_mgt");
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_delete_comment/:id',
+    function (req, res) {
+	var id = req.params.id;
+	auth_mgt(req, res,
+	    function() {
+		backend.delete_comment( mysql_connection, mysql.escape(id),
+		    function () {
+			res.redirect("/admin/comment_mgt");
+		    }
+		);
+	    }
+	);
+    }
+);
+
+/**
+ * Stopped here !!!
+ * */
+app.get( '/admin/Users',
+    function( err, res ) {
+	
     }
 );

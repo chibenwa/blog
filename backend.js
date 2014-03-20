@@ -1,3 +1,11 @@
+// Crypto utils
+
+var salt = "benwablog";
+
+var crypto = require('crypto')
+  , shasum = crypto.createHash('sha1');
+
+  
 // utils...
 
 function to_month(n) {
@@ -179,3 +187,158 @@ exports.add_comment = function( mysql_connection, comment_titre, comment_creator
     );
 };
 
+exports.get_projects = function(mysql_connection, callback) {
+    mysql_connection.query("SELECT * FROM projet ORDER BY begin DESC",
+	function(err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback(res);
+	    }
+	}
+    );
+};
+
+exports.get_project_by_id = function(mysql_connection, projet_id, callback) {
+    mysql_connection.query("SELECT * FROM projet WHERE id="+projet_id,
+	function (err,res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback(res);
+	    }
+	}
+    );
+};
+
+exports.get_waiting_comments_count = function( mysql_connection, callback ) {
+    mysql_connection.query("SELECT COUNT(*) AS comment_nb FROM commentaire WHERE valid='0'", 
+	function( err, res ) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback(res[0].comment_nb);
+	    }
+	}
+    );
+};
+
+exports.create_article = function( mysql_connection, mysql, req, callback ) {
+    var d = new Date;
+    mysql_connection.query("INSERT INTO article(title, summary, text, date, year, month, day, subject) VALUES("+mysql.escape(req.body.title)+", "+mysql.escape(req.body.summary)+", "+mysql.escape(req.body.text)+", NOW(),"+mysql.escape(d.getFullYear())+", "+mysql.escape(d.getMonth())+", "+mysql.escape(d.getDate())+", "+mysql.escape(req.body.theme)+")",
+	function( err, res ) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( res.insertId );
+	    }
+	}
+    );
+};
+
+exports.certify_admin = function( mysql_connection, login, pass, callback ) {
+    mysql_connection.query( "SELECT * FROM user WHERE name="+login,
+	function (err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		if( res.length < 1 ) {
+		    callback( false );
+		} else {
+		    // Here we will verify password
+		    shasum.update( salt + pass );
+		    if( res[0].pass == shasum.digest('hex') ) {
+		      callback(true);
+		    } else {
+		      callback(false);
+		    }
+		}
+	    }
+	}
+    );
+};
+
+exports.create_project = function( mysql_connection, name, summary, git_clone, ended, etat, progress, details, callback ) {
+    mysql_connection.query("INSERT INTO projet(name, summary, git_clone, ended, etat, progress, details, begin, end) VALUES("+name+", "+summary+", "+git_clone+", "+ended+", "+etat+", "+progress+", "+details+", NOW(), NOW())",
+	function( err, res ) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( res.insertId );
+	    }
+	}
+    );
+};
+
+exports.projet_update_progress = function( mysql_connection, id, progress, callback) {
+    mysql_connection.query("UPDATE `projet` SET progress="+progress+" WHERE id="+id,
+	function( err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback(  );
+	    }
+	}
+    );
+};
+
+exports.projet_update_ended = function ( mysql_connection, id, ended, callback ) {
+    mysql_connection.query("UPDATE `projet` SET ended="+ended+", end=NOW(), progress='100', etat='3' WHERE id="+id,
+	function( err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		console.log( "Hey tierce !");
+		callback(  );
+	    }
+	}
+    );
+};
+
+exports.projet_update_etat = function ( mysql_connection, id, etat, callback ) {
+    mysql_connection.query("UPDATE `projet` SET etat="+etat+" WHERE id="+id,
+	function( err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback(  );
+	    }
+	}
+    );
+};
+
+exports.get_waiting_comments = function ( mysql_connection, callback ) {
+    mysql_connection.query("SELECT * FROM commentaire WHERE valid='0' ",
+	function( err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( res );
+	    }
+	}
+    );
+};
+
+exports.accept_comment = function ( mysql_connection, id, callback ) {
+    mysql_connection.query("UPDATE `commentaire` SET valid='1' WHERE id="+id,
+	function( err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( );
+	    }
+	}
+    );
+};
+
+exports.delete_comment = function ( mysql_connection, id, callback ) {
+    mysql_connection.query("DELETE FROM commentaire WHERE id="+id,
+	function( err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( );
+	    }
+	}
+    );
+};

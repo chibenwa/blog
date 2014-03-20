@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Mon blog personnel">
+	<meta name="author" content="Benoit Tellier">
+<!--	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script> -->
+	<link href="/styles/theme.css" rel="stylesheet">
+	<link href="/styles/bootstrap.min.css" rel="stylesheet">
+	<link href="/styles/bootstrap-theme.min.css" rel="stylesheet">
+    </head>
+    <body role="document">
+
+    <!-- Fixed top navbar -->
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+	    <li><img src="/images/blog.png"/></li>
+	    <li class="active"><a href="/"><b>Home</b></a></li>
+		  
+		<%
+		    for( var i=0; i< subjects.length; i++ ) {
+		%>	
+		    <li><a href="/topics/<%= i %>"><%= subjects[i] %></a></li>
+		<%
+		    }
+		%>         
+		
+          </ul>
+	  <ul class="nav navbar-nav" style="float:right;" >
+	      <li> <a href="/projets" ><b>Mes projets</b></a></li>
+	      <li class="active"><a href="/archives" ><b>Archives</b></a></li>
+	      <li><a href="mailto:benwa@minet.net?Subject=[Benwa-blog]%20Your%20subject" ><b>Contact</b></a></li>
+	      <li><a href="/cv" ><b>CV</b></a></li>
+	  </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container theme-showcase" role="main">
+    
+      <!-- Barre de navigation pour l'administration -->
+      <div class="navbar navbar-default">
+        <div class="container">
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/admin"><b>Édition d'articles</b></a></li>
+	      <li><a href="/admin/projet_ed"><b>Édition de projets</b></a></li>
+	      <li><a href="/admin/projet_mgt"><b>Management de projets</b></a></li>
+	      <li><a href="/admin/comment_mgt"><b>(<%= waiting_comments %>) commentaires</b></a></li>
+	      <li><a href="/admin/Users"><b>Utilisateurs</b></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+	<div class="jumbotron">
+		<form class="form-horizontal" role="form" action="/post_new_projet" method="post">
+		    <legend>Création de projets</legend>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="name" name="name" size="35" placeholder="Nom du projet" class="input-xlarge" type="text"/>
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="summary" name="summary" size="100" placeholder="Un résumé de votre projet" class="input-xlarge" required="" type="text"/>    
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="git_clone" name="git_clone" size="100" placeholder="Lien pour pouvoir cloner votre dépot git" class="input-xlarge" required="" type="text"/>    
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    Votre projet est il finit ? <br/>
+			    <input type="radio" name="ended" value="0" checked="checked">En cours<br/>
+			    <input type="radio" name="ended" value="1">Finit
+			</div>
+		    </div>	    
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    État du projet : <br/>
+			    <input type="radio" name="etat" value="0" checked="checked">On travaille dessus<br/>
+			    <input type="radio" name="etat" value="1">Momentanément en pause <br/>
+			    <input type="radio" name="etat" value="2">Projet à l'abandon <br/>
+			    <input type="radio" name="etat" value="3">Finis <br/>
+			</div>
+		    </div>	    
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="progress" name="progress" size="100" placeholder="Avancement du projet ( entre 0 et 100 )" class="input-xlarge" required="" type="text"/>    
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">                     
+			    <textarea id="details" name="details" rows="50" cols="100" onclick="empty('details')">Détail de votre projet</textarea>
+			</div>
+		    </div>	    
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value="Envoyer" class="btn btn-success"/>
+			</div>
+		    </div>
+		</form>
+	</div>
+    </div>
+    <script src="/scripts/empty_text_area.js"></script>
+    </body>
+</html>

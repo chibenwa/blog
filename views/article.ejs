@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="Mon blog personnel">
 	<meta name="author" content="Benoit Tellier">
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<!--	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script> -->
 	<link href="/styles/theme.css" rel="stylesheet">
 	<link href="/styles/bootstrap.min.css" rel="stylesheet">
 	<link href="/styles/bootstrap-theme.min.css" rel="stylesheet">
@@ -104,7 +104,7 @@
 <br/>
 <div class="control-group">
   <div class="controls">                     
-    <textarea id="text" name="text" rows="4" cols="50">Votre commentaire ...</textarea>
+    <textarea id="text" name="text" rows="4" cols="50" onclick="empty('text')">Votre commentaire ...</textarea>
   </div>
 </div>
 <br/>
@@ -116,10 +116,14 @@
 <input type="hidden" name="article" value="<%= article.id %>" />
 
 </form>
-
+    <br/>
+    <div class="alert alert-info">
+       <strong>Les commentaires doivent être acceptés par le modérateur.</strong> Ils ne seront affichés qu'une fois modérés.
+    </div>
 	
     </div>
 
+    <script src="/scripts/empty_text_area.js"></script>
     </body>
 </html>
 

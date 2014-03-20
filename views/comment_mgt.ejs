@@ -41,39 +41,49 @@
       </div>
     </div>
 
-    
-
     <div class="container theme-showcase" role="main">
+    
+      <!-- Barre de navigation pour l'administration -->
+      <div class="navbar navbar-default">
+        <div class="container">
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="/admin"><b>Édition d'articles</b></a></li>
+	      <li><a href="/admin/projet_ed"><b>Édition de projets</b></a></li>
+	      <li><a href="/admin/projet_mgt"><b>Management de projets</b></a></li>
+	      <li><a href="/admin/comment_mgt"><b>(<%= waiting_comments %>) commentaires</b></a></li>
+	      <li><a href="/admin/Users"><b>Utilisateurs</b></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    
 	<div class="jumbotron">
-	
-	    <h1>Artciles de ce sujet : <b><%= subjects[current_subject] %></b> </h1>
-	    
-	    <br/>
-	    
 	    <%
-		for( var i = 0; i < articles.length; i++ ) {
+		for( var i = 0; i < comments.length ; i++ ) {
 	    %>
-	    <div>
-		<span style="float:right;"><%= articles[i].date.getDate() %>/
-		<% 
-		    if(articles[i].date.getMonth() +1 < 10) {
-		%>0<%}%><%= articles[i].date.getMonth() +1 %>/
-		<%= articles[i].date.getFullYear() %></span>
-		<h3><a href="/article/<%= articles[i].id %>"><%= articles[i].title %></a></h3>
-		<div>
-		    <b>
-			<%=articles[i].summary%>
-		    </b>
-		</div>
-		<br/><br/>
-	    </div>
+		<h2> <%= comments[i].title %> </h2>
+		By <%= comments[i].creator %>  <b>Content : </b><br/>
+		<%= comments[i].text %> <br/>
+		<form class="form-horizontal" role="form" action="/post_accept_comment/<%= comments[i].id %>" method="post">
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value="Accepter" class="btn btn-sm btn-success"/>
+			</div>
+		    </div>
+		</form>
+		<form class="form-horizontal" role="form" action="/post_delete_comment/<%= comments[i].id %>" method="post">
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value=" Refuser&nbsp; " class="btn btn-sm btn-danger"/>
+			</div>
+		    </div>
+		</form>
 	    <%
 		}
 	    %>
-	    
 	</div>
     </div>
-
-
+    <script src="/scripts/empty_text_area.js"></script>
     </body>
 </html>

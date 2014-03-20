@@ -41,39 +41,31 @@
       </div>
     </div>
 
-    
-
     <div class="container theme-showcase" role="main">
 	<div class="jumbotron">
-	
-	    <h1>Artciles de ce sujet : <b><%= subjects[current_subject] %></b> </h1>
-	    
-	    <br/>
-	    
-	    <%
-		for( var i = 0; i < articles.length; i++ ) {
-	    %>
-	    <div>
-		<span style="float:right;"><%= articles[i].date.getDate() %>/
-		<% 
-		    if(articles[i].date.getMonth() +1 < 10) {
-		%>0<%}%><%= articles[i].date.getMonth() +1 %>/
-		<%= articles[i].date.getFullYear() %></span>
-		<h3><a href="/article/<%= articles[i].id %>"><%= articles[i].title %></a></h3>
-		<div>
-		    <b>
-			<%=articles[i].summary%>
-		    </b>
-		</div>
-		<br/><br/>
-	    </div>
-	    <%
-		}
-	    %>
-	    
+		
+		<form class="form-horizontal" role="form" action="/post_auth" method="post">
+		    <legend>Veuillez vous authentifier !</legend>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="login" name="login" size="35" placeholder="Login" class="input-xlarge" type="text"/>
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="pass" name="pass" size="35" placeholder="Votre mot de passe" class="input-xlarge" required="" type="password"/>    
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value="Envoyer" class="btn btn-success"/>
+			</div>
+		    </div>
+		</form>
 	</div>
     </div>
-
 
     </body>
 </html>

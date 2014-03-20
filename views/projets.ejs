@@ -45,27 +45,62 @@
 
     <div class="container theme-showcase" role="main">
 	<div class="jumbotron">
-	
-	    <h1>Artciles de ce sujet : <b><%= subjects[current_subject] %></b> </h1>
 	    
-	    <br/>
+	   <%
+		for( var i = 0; i < projets.length; i++ ) {
+	   %>
+	    <div class="well">
 	    
-	    <%
-		for( var i = 0; i < articles.length; i++ ) {
-	    %>
-	    <div>
-		<span style="float:right;"><%= articles[i].date.getDate() %>/
-		<% 
-		    if(articles[i].date.getMonth() +1 < 10) {
-		%>0<%}%><%= articles[i].date.getMonth() +1 %>/
-		<%= articles[i].date.getFullYear() %></span>
-		<h3><a href="/article/<%= articles[i].id %>"><%= articles[i].title %></a></h3>
-		<div>
-		    <b>
-			<%=articles[i].summary%>
-		    </b>
+		<div style="float:right;">
+		    <br/>
+		    <pre><code> git clone <%= projets[i].git_clone %></code></pre>
+		    <span>
+		    Début du projet : <%= projets[i].begin.getDate() %>/ <% 
+			if(projets[i].begin.getMonth() +1 < 10) {
+		    %>0<%}%><%= projets[i].begin.getMonth() +1 %>/
+		    <%= projets[i].begin.getFullYear() %>
+		    </span>
+		    <%
+			if( projets[i].ended == "1" ) {
+		    %>
+			    <span>
+				<br/>
+				Fin du projet : <%= projets[i].end.getDate() %>/ <% 
+				    if(projets[i].end.getMonth() +1 < 10) {
+				%>0<%}%><%= projets[i].end.getMonth() +1 %>/
+				<%= projets[i].end.getFullYear() %>
+			    </span>
+		    <%
+			}
+		    %>
 		</div>
-		<br/><br/>
+		
+		<h2> <a href="/projets/<%= projets[i].id%>"> <%= projets[i].name%> </a></h2>
+		<p>
+		  <b>
+		    <%= projets[i].summary%>
+		  </b>
+		</p>
+		<br/>
+		<div class="progress">
+		    <%
+			var myClass = " progress-bar-success";
+			if( projets[i].etat == 0 ) {
+			    myClass = " progress-bar-success";
+			} else {
+			    if( projets[i].etat == 1 ) {
+				myClass = " progress-bar-warning";
+			    } else {
+				if( projets[i].etat == 2 ) {
+				    myClass = " progress-bar-danger";
+				} else {
+				    myClass = " progress-bar-info";
+				}
+			    }
+			}
+		    %>
+		    <div class="progress-bar<%= myClass %>" role="progressbar" aria-valuenow="<%= projets[i].progress %>" aria-valuemin="0" aria-valuemax="100" style="width: <%= projets[i].progress %>%;"><span class="sr-only">60% Complete</span></div>
+		</div>
 	    </div>
 	    <%
 		}
@@ -74,6 +109,6 @@
 	</div>
     </div>
 
-
     </body>
 </html>
+
