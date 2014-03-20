@@ -48,6 +48,10 @@ var subjects = ["Web", "Software" , "Kernel", "Admin sys", "Divers"];
 app.use(express.cookieParser());
 app.use(express.session({secret: 'chibuya'}))
 
+// Using markdown for rendering...
+
+var markdown = require( "markdown" ).markdown;
+
 // Usefull function to know if an admin is identified
 
 function is_authentified( req ) {
@@ -67,7 +71,7 @@ function auth_mgt( req, res, callback ) {
 app.get( '/', 
     function(req, res) {
 	backend.get_10_last_articles(mysql_connection, function(articles) {
-		res.render("index.ejs",{subjects : subjects, articles : articles});
+		res.render("index.ejs",{subjects : subjects, articles : articles, markdown : markdown});
 	    }
 	);
     }
@@ -80,7 +84,7 @@ app.get( '/article/:article_id',
 	    backend.get_article_by_id(mysql_connection, mysql, req.params.article_id,
 		function(found, article, comments) {
 		    if( found ) {
-			res.render("article.ejs", {article : article, subjects : subjects, comments : comments} );
+			res.render("article.ejs", {article : article, subjects : subjects, comments : comments, markdown : markdown } );
 		    } else {
 			res.render("404.ejs", {subjects : subjects} );
 		    }
@@ -167,7 +171,7 @@ app.get('/projets/:projet_id',
 		    if( projets.length == 0 ) {
 			res.render("404.ejs", {subjects : subjects} );
 		    } else {
-			res.render("projet.ejs",{ subjects : subjects, projet : projets[0]});
+			res.render("projet.ejs",{ subjects : subjects, projet : projets[0] , markdown : markdown });
 		    }
 		}
 	    );
@@ -392,7 +396,33 @@ app.post( '/post_delete_comment/:id',
  * Stopped here !!!
  * */
 app.get( '/admin/Users',
-    function( err, res ) {
-	
+    function( req, res ) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_waiting_comments_count( mysql_connection,
+		    function( waiting_comments ) {
+			res.render("create_user.ejs",{ subjects : subjects, waiting_comments : waiting_comments } );
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_new_user',
+    function( req, res ) {
+	console.log('plop');
+	auth_mgt(req, res,
+	    function() {
+		console.log('plop bis');
+		var login = mysql.escape(req.body.name);
+		var pass = req.body.pass;
+		backend.create_user( mysql_connection, login, pass, 
+		    function( waiting_comments ) {
+			res.redirect("/admin/Users");
+		    }
+		);
+	    }
+	);
     }
 );

@@ -4,7 +4,6 @@ var salt = "benwablog";
 
 var crypto = require('crypto')
   , shasum = crypto.createHash('sha1');
-
   
 // utils...
 
@@ -341,4 +340,21 @@ exports.delete_comment = function ( mysql_connection, id, callback ) {
 	    }
 	}
     );
+};
+
+exports.create_user = function ( mysql_connection, login, pass, callback ) {
+    var sha2 = require('crypto').createHash('sha1');
+    sha2.update(salt + pass);
+    var q= "INSERT INTO user(name, pass) VALUES("+ login +", '"+ sha2.digest('hex') +"')";
+    console.log( q );
+    mysql_connection.query( q ,
+	function( err, res ) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( );
+	    }
+	}
+    );
+    
 };
