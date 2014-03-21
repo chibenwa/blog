@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <% include header.ejs %> 
+    <body role="document">
+
+    <% include navbar.ejs %>
+
+    <div class="container theme-showcase" role="main">
+    
+      <% include admin_navbar.ejs  %>
+    
+	<div class="jumbotron">
+		<form class="form-horizontal" role="form" action="/post_new_user" method="post">
+		    <legend>Créer un nouvel admin</legend>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="name" name="name" size="35" placeholder="Nom du projet" class="input-xlarge" type="text"/>
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input id="pass" name="pass" size="35" placeholder="Son mot de passe" class="input-xlarge" required="" type="text"/>    
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value="Envoyer" class="btn btn-success"/>
+			</div>
+		    </div>
+		</form>
+		 
+	</div>
+    </div>
+    <script src="/scripts/empty_text_area.js"></script>
+    </body>
+</html>

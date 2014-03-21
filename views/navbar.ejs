@@ -1,0 +1,25 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+	    <li><img src="/images/blog.png"/></li>
+	    <li class="active"><a href="/"><b>Home</b></a></li>
+		  
+		<%
+		    for( var i=0; i< subjects.length; i++ ) {
+		%>	
+		    <li><a href="/topics/<%= i %>"><%= subjects[i] %></a></li>
+		<%
+		    }
+		%>         
+		
+          </ul>
+	  <ul class="nav navbar-nav" style="float:right;" >
+	      <li> <a href="/projets" ><b>Mes projets</b></a></li>
+	      <li class="active"><a href="/archives" ><b>Archives</b></a></li>
+	      <li><a href="mailto:benwa1@orange.fr?Subject=[Benwa-blog]%20Your%20subject" ><b>Contact</b></a></li>
+	      <li><a href="/cv.pdf" ><b>CV</b></a></li>
+	  </ul>
+        </div>
+      </div>
+    </div>
