@@ -245,7 +245,7 @@ exports.certify_admin = function( mysql_connection, login, pass, callback ) {
 		    callback( false );
 		} else {
 		    // Here we will verify password
-		    shasum bis= crypto.createHash('sha1');
+		    shasumbis= crypto.createHash('sha1');
 		    shasumbis.update( salt + pass );
 		    if( res[0].pass == shasumbis.digest('hex') ) {
 		      callback(true);
