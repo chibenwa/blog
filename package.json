@@ -1,0 +1,10 @@
+{
+	"name" : "colab_todo",
+	"version" : "0.1.0",
+	"depandancies" : {
+		"mysql" : "~2.1",
+		"express" : "~3.4",
+		"ejs" : "~0.8",
+		"markdown" : "~0.5",
+	}
+}
