@@ -249,6 +249,7 @@ exports.certify_admin = function( mysql_connection, login, pass, callback ) {
 		    shasumbis.update( salt + pass );
 		    if( res[0].pass == shasumbis.digest('hex') ) {
 		      callback(true);
+        	      console.log('Granted');
 		    } else {
 		      callback(false);
 		    }

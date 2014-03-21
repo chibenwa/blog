@@ -24,7 +24,7 @@ var mysql = require('mysql');
 var mysql_connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : 'chibuya',
+  password : 'bricoloDu69enverlan',
   database : 'Node_blog'
 
 });
