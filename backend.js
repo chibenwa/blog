@@ -245,8 +245,9 @@ exports.certify_admin = function( mysql_connection, login, pass, callback ) {
 		    callback( false );
 		} else {
 		    // Here we will verify password
-		    shasum.update( salt + pass );
-		    if( res[0].pass == shasum.digest('hex') ) {
+		    shasum bis= crypto.createHash('sha1');
+		    shasumbis.update( salt + pass );
+		    if( res[0].pass == shasumbis.digest('hex') ) {
 		      callback(true);
 		    } else {
 		      callback(false);
@@ -343,7 +344,7 @@ exports.delete_comment = function ( mysql_connection, id, callback ) {
 };
 
 exports.create_user = function ( mysql_connection, login, pass, callback ) {
-    var sha2 = require('crypto').createHash('sha1');
+    var sha2 = crypto.createHash('sha1');
     sha2.update(salt + pass);
     var q= "INSERT INTO user(name, pass) VALUES("+ login +", '"+ sha2.digest('hex') +"')";
     console.log( q );
