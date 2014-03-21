@@ -245,9 +245,13 @@ exports.certify_admin = function( mysql_connection, login, pass, callback ) {
 		    callback( false );
 		} else {
 		    // Here we will verify password
-		    shasum.update( salt + pass );
-		    if( res[0].pass == shasum.digest('hex') ) {
+		    console.log('Before hash update');
+                    shasumbis = crypto.createHash('sha1');
+		    shasumbis.update( salt + pass );
+		    console.log('AFter hash update');
+		    if( res[0].pass == shasumbis.digest('hex') ) {
 		      callback(true);
+        	      console.log('Granted');
 		    } else {
 		      callback(false);
 		    }
