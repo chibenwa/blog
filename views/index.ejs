@@ -25,7 +25,7 @@
 		<div id="content">
 		    <%
 			var text = articles[i].text;
-			var nrw = 400;                // the number of words we want to extract
+			var nrw = 150;                // the number of words we want to extract
 			var rgxwords = new RegExp('([^ ]*[ ]{0,1}){1,'+nrw+'}', 'g');      // regexp for specified number of spaces
 			var txt = text.match(rgxwords)[0];         // get the substring with "nrw" number of words
 		    %>
