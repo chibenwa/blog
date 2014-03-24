@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <% include header.ejs %> 
+    <body role="document">
+
+    <% include navbar.ejs %>
+
+    <div class="container theme-showcase" role="main">
+	<div class="jumbotron">
+	
+	    <h1>Liste des flux RSS : </b> </h1>
+	    <br/>
+	    <ul>
+		<%
+		    for( var i = 0 ; i < feeds.length; i++ ) {
+		%>
+		    <li>
+		    <b><%= feeds[i].description %> : <code> <%= feeds[i].url %> </code></b> <br/>
+		    <br/>
+		    <%= feeds[i].explanation %>
+		    </li>
+		    <br/><br/>
+		<%
+		    }
+		%>
+	    </ul>
+	    
+	</div>
+    </div>
+
+
+    </body>
+</html>
