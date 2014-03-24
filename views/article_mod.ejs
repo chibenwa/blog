@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <% include header.ejs %> 
+    <body role="document">
+
+    <% include navbar.ejs %>
+
+    <div class="container theme-showcase" role="main">
+    
+      <% include admin_navbar.ejs  %>
+    
+	<div class="jumbotron">
+		<form class="form-horizontal" role="form" action="/post_new_article/<%= article.id %>" method="post">
+		    <legend>Modification de l'article : <%= article.title %> </legend>
+		    <div class="control-group">
+			<div class="controls">                     
+			    <textarea id="text" name="text" rows="50" cols="100"><%= article.text %></textarea>
+			</div>
+		    </div>	    
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value="Envoyer" class="btn btn-success"/>
+			</div>
+		    </div>
+		</form>
+	</div>
+    </div>
+    </body>
+</html>

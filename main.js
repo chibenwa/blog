@@ -644,15 +644,69 @@ app.get( '/rss/docs.html' ,
 
 app.post( '/post_new_notification/:id',
     function( req, res) {
-	var projet = mysql.escape( req.params.id );
-	var type = mysql.escape( 0 );
-	var text = mysql.escape( req.body.notification );
-	backend.insert_new_notif(mysql_connection, projet, type, text,
+	auth_mgt(req, res,
 	    function() {
-		renew_prj_feeds();
+		var projet = mysql.escape( req.params.id );
+		var type = mysql.escape( 0 );
+		var text = mysql.escape( req.body.notification );
+		backend.insert_new_notif(mysql_connection, projet, type, text,
+		    function() {
+			renew_prj_feeds();
+		    }
+		);
+		res.redirect('/admin/projet_mgt');
 	    }
 	);
-	res.redirect('/admin/projet_mgt');
     }
 );
 
+app.get('/admin/mod_article/:id',
+    function( req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_article_by_id( mysql_connection, mysql, req.params.id,
+		    function(b, article) {
+			backend.get_waiting_comments_count( mysql_connection, 
+			    function( waiting_comments ) {
+				res.render("article_mod.ejs",{subjects : subjects, article : article, waiting_comments : waiting_comments});
+			    }
+			);
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/post_new_article/:id',
+    function( req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.modify_article(mysql_connection, mysql.escape(req.params.id), mysql.escape( req.body.text ), 
+		    function() {
+			
+		    }
+		);
+		res.redirect('/article/'+ req.params.id );
+	    }
+	);
+    }
+);
+
+app.get( '/admin/list_articles',
+    function( req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_articles( mysql_connection,
+		    function( articles ) {
+			backend.get_waiting_comments_count( mysql_connection, 
+			    function( waiting_comments ) {
+				res.render( "list_articles.ejs" ,{ waiting_comments : waiting_comments, subjects : subjects, articles : articles });
+			    }
+			);
+		    }
+		);
+	    }
+	);
+    }
+);

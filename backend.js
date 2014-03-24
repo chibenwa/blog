@@ -406,3 +406,27 @@ exports.get_20_last_notifs = function( mysql_connection, callback ) {
 	}
     );
 };
+
+exports.modify_article = function (mysql_connection, id, text, callback) {
+    mysql_connection.query("UPDATE `article` SET text="+text+" WHERE id="+id,
+	function( err, ress ) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback();
+	    }
+	}
+    );
+};
+
+exports.get_articles = function ( mysql_connection, callback ) {
+    mysql_connection.query("SELECT * FROM article ORDER BY date DESC",
+	function( err, res ) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback(res);
+	    }
+	}
+    );
+};

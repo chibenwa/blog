@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <% include header.ejs %> 
+    <body role="document">
+
+    <% include navbar.ejs %>
+
+    <div class="container theme-showcase" role="main">
+    
+      <% include admin_navbar.ejs  %>
+    
+	<div class="jumbotron">
+		<h1>Lien vers les articles</h1>
+		<%
+		    for(var i = 0; i< articles.length; i++) {
+		%>
+			<a href="/admin/mod_article/<%= articles[i].id%>"> <%= articles[i].title %> </a><br/><br/>
+		<%
+		    }
+		%>
+	</div>
+    </div>
+    </body>
+</html>
