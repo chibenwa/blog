@@ -386,7 +386,6 @@ exports.insert_new_notif = function (mysql_connection, projet, type, text, callb
 };
 
 exports.select_project_notifs = function( mysql_connection, project_id, callback ) {
-    console.log(q);
     mysql_connection.query("SELECT * FROM projet_notification WHERE projet="+project_id+" ORDER BY date DESC",
 	function(err, res) {
 	    if( err ) {
