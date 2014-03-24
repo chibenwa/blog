@@ -102,25 +102,82 @@ function auth_mgt( req, res, callback ) {
 
 // Import RSS list
 
-backend.get_10_last_articles( mysql_connection, 
-    function ( lasts_artcicles) {
-	benwa_rss.import_feeds( lasts_artcicles,
-	    function() {
-		benwa_rss.build_xml(
-		    function() {
-		    
-		    }
-		);
-	    }
-	);
-    }
-);
+function my_feed_import() {
+    backend.get_10_last_articles( mysql_connection, 
+	function ( lasts_artcicles) {
+	    benwa_rss.import_feeds( lasts_artcicles,
+		function() {
+		    benwa_rss.build_xml(
+			function() {
+			
+			}
+		    );
+		}
+	    );
+	}
+    );
+}
+
+function prj_rss_create() {
+    backend.get_projects( mysql_connection,
+	function( projets ) {
+	    backend.get_20_last_notifs(mysql_connection,
+		function( notifs ) {
+		    benwa_rss.add_notifs(projets, notifs,
+			function(){
+			    benwa_rss.build_xml_prj(
+				function() {
+				    
+				}
+			    );
+			}
+		    );
+		}
+	    );
+	}
+    );
+}
+
+function renew_prj_feeds() {
+    benwa_rss.renew_second_feed(
+	function() {
+	    backend.get_20_last_notifs( mysql_connection,
+		function(notifs) {
+		    backend.get_projects(mysql_connection,
+			function(projets) {
+			    benwa_rss.add_notifs(projets, notifs,
+				function(){
+				    benwa_rss.build_xml_prj( function(){} );
+				}
+			    );
+			}
+		    );
+		}
+	    );
+	}
+    );
+}
+
+my_feed_import();
+
+prj_rss_create();
 
 // Serve RSS list...
 
 app.get( '/rss.xml',
     function(req, res) {
 	benwa_rss.get_xml(
+	    function(xml){
+		res.setHeader('Content-Type', 'text/plain');
+		res.end(xml);
+	    }
+	);
+    }
+);
+
+app.get( '/rss_prj.xml',
+    function(req, res) {
+	benwa_rss.get_xml_prj(
 	    function(xml){
 		res.setHeader('Content-Type', 'text/plain');
 		res.end(xml);
@@ -234,7 +291,12 @@ app.get('/projets/:projet_id',
 		    if( projets.length == 0 ) {
 			res.render("404.ejs", {subjects : subjects} );
 		    } else {
-			res.render("projet.ejs",{ subjects : subjects, projet : projets[0] , markdown : markdown });
+			backend.select_project_notifs( mysql_connection, mysql.escape(n), 
+			    function( notifs ) {
+				console.log( "Confirm " + notifs.length );
+				res.render("projet.ejs",{ subjects : subjects, projet : projets[0] , markdown : markdown, notifs : notifs });
+			    }
+			);
 		    }
 		}
 	    );
@@ -278,7 +340,12 @@ app.post( '/post_new_article',
 	    function() {
 		backend.create_article( mysql_connection, mysql, req,
 		    function( insert_id ) {
-			res.redirect('/article/'+insert_id );
+			benwa_rss.renew_first_feed(
+			    function() {
+				my_feed_import();
+				res.redirect('/article/'+insert_id );
+			    }
+			);
 		    }
 		);
 	    }
@@ -367,6 +434,14 @@ app.post( '/post_update_avancement/:id',
 	    function() {
 		backend.projet_update_progress( mysql_connection, mysql.escape(id), progress,
 		    function () {
+			var projet = mysql.escape( req.params.id );
+			var type = mysql.escape( 1 );
+			var text = mysql.escape( "Réalisé à " + req.body.progress + "%" );
+			backend.insert_new_notif(mysql_connection, projet, type, text,
+			    function () {
+				renew_prj_feeds();
+			    }
+			);
 			res.redirect("/admin/projet_mgt");
 		    }
 		);
@@ -383,6 +458,14 @@ app.post( '/post_update_ended/:id',
 	    function() {
 		backend.projet_update_ended( mysql_connection, mysql.escape(id), ended,
 		    function () {
+			var projet = mysql.escape( req.params.id );
+			var type = mysql.escape( 2 );
+			var text = mysql.escape( "Le projet est bouclé" );
+			backend.insert_new_notif(mysql_connection, projet, type, text,
+			    function () {
+				renew_prj_feeds();
+			    }
+			);
 			res.redirect("/admin/projet_mgt");
 		    }
 		);
@@ -399,6 +482,28 @@ app.post( '/post_update_etat/:id',
 	    function() {
 		backend.projet_update_etat( mysql_connection, mysql.escape(id), etat,
 		    function () {
+			var projet = mysql.escape( req.params.id );
+			var type = mysql.escape( 2 );
+			var t;
+			if( req.body.etat == 0 ) {
+			    t = "Reprise du travail";
+			} else {
+			    if ( req.body.etat == 1 ) {
+				 t = "Arrêt temporaire du développement";
+			    } else {
+				if ( req.body.etat == 2 ) {
+				    t = "Arrêt définitif du développement";
+				} else {
+				    t = "Le projet est bouclé";
+				}
+			    }
+			}
+			var text = mysql.escape( t );
+			backend.insert_new_notif(mysql_connection, projet, type, text,
+			    function () {
+				renew_prj_feeds();
+			    }
+			);
 			res.redirect("/admin/projet_mgt");
 		    }
 		);
@@ -455,9 +560,6 @@ app.post( '/post_delete_comment/:id',
     }
 );
 
-/**
- * Stopped here !!!
- * */
 app.get( '/admin/Users',
     function( req, res ) {
 	auth_mgt(req, res,
@@ -533,6 +635,7 @@ app.get( '/rss/docs.html' ,
 );
 
 /**
+ * 
  * Code for notification on projects :
  * 0 : human posted
  * 1 : modification of avancement
@@ -542,6 +645,15 @@ app.get( '/rss/docs.html' ,
 
 app.post( '/post_new_notification/:id',
     function( req, res) {
-	// work here ^^
+	var projet = mysql.escape( req.params.id );
+	var type = mysql.escape( 0 );
+	var text = mysql.escape( req.body.notification );
+	backend.insert_new_notif(mysql_connection, projet, type, text,
+	    function() {
+		renew_prj_feeds();
+	    }
+	);
+	res.redirect('/admin/projet_mgt');
     }
 );
+

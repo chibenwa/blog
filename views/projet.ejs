@@ -61,6 +61,45 @@
 		    <%- markdown.toHTML(projet.details) %>
 		</div>
 	</div>
+	<div>
+	    <%
+		var first = true;
+		for( var i = 0; i < notifs.length; i++ ) {
+		    if( first ) {
+			first = false;
+	    %>
+			<h2>Notifications</h2>
+	    <%
+		    }
+	    %>
+		<div class="alert alert-info">
+		    <%= notifs[i].date.getDate() %>/ <% 
+			if(notifs[i].date.getMonth() +1 < 10) {
+		    %>0<%}%><%= notifs[i].date.getMonth() +1 %>/
+		    <%= notifs[i].date.getFullYear() %>
+		    <%
+			if( notifs[i].type == 0 ) {
+		    %>
+		    Nouveau commentaire :
+		    <%
+			} else {
+			    if( notifs[i].type == 1 ) {
+		    %>
+		    Modification de l'avancement du projet : 
+		    <%
+			    } else {
+		    %>
+		    Modification de l'état du projet :
+		    <%
+			    }
+			}
+		    %>
+		    <%= notifs[i].text %>
+		</div>
+	    <%
+		}
+	    %>
+	</div>
     </div>
 
     </body>

@@ -249,7 +249,6 @@ exports.certify_admin = function( mysql_connection, login, pass, callback ) {
 		    shasumbis.update( salt + pass );
 		    if( res[0].pass == shasumbis.digest('hex') ) {
 		      callback(true);
-        	      console.log('Granted');
 		    } else {
 		      callback(false);
 		    }
@@ -373,3 +372,40 @@ exports.update_projet_details = function( mysql_connection, id, details, callbac
     );
 };
 
+exports.insert_new_notif = function (mysql_connection, projet, type, text, callback ) {
+    var q= "INSERT INTO projet_notification(projet, type, text, date) VALUES("+projet+","+type+","+text+",NOW())";
+    mysql_connection.query(q ,
+	function(err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( );
+	    }
+	}
+    );
+};
+
+exports.select_project_notifs = function( mysql_connection, project_id, callback ) {
+    console.log(q);
+    mysql_connection.query("SELECT * FROM projet_notification WHERE projet="+project_id+" ORDER BY date DESC",
+	function(err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( res );
+	    }
+	}
+    );
+};
+
+exports.get_20_last_notifs = function( mysql_connection, callback ) {
+    mysql_connection.query("SELECT * FROM projet_notification ORDER BY date DESC LIMIT 20",
+	function(err, res) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback( res );
+	    }
+	}
+    );
+};
