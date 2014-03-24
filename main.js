@@ -21,19 +21,53 @@ app.use(express.json());
 
 var mysql = require('mysql');
 
-var mysql_connection = mysql.createConnection({
+var connection_params = {
   host     : 'localhost',
   user     : 'root',
-  password : 'bricoloDu69enverlan',
+  password : 'chibuya',
   database : 'Node_blog'
 
-});
+};
 
-mysql_connection.connect();
+//~ var mysql_connection = mysql.createConnection( connection_params );
+//~ 
+//~ mysql_connection.connect();
+
+var mysql_connection;
+
+function handleDisconnect() {
+    mysql_connection = mysql.createConnection(connection_params); 
+
+    mysql_connection.connect(
+	function(err) {              // The server is either down or restarting (takes a while sometimes).
+	    if(err) {
+		console.log('error when connecting to db:', err);
+		setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,to avoid a hot loop, and to allow our node script to process asynchronous requests in the meantime. If you're also serving http, display a 503 error.
+	    } 
+	}
+    );
+    mysql_connection.on('error', 
+	function(err) {
+	    console.log('db error', err);
+	    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+		// Connection to the MySQL server is usually lost due to either server restart, or a connnection idle timeout (the wait_timeout server variable configures this)
+		handleDisconnect();
+	    } else {
+		throw err;
+	    }
+	}
+    );
+}
+
+handleDisconnect();
 
 // Use our backend
 
 var backend = require('./backend');
+
+// Use our RSS reader
+
+var benwa_rss = require('./benwa_rss');
 
 // Subject definition ...
 /**
@@ -65,6 +99,35 @@ function auth_mgt( req, res, callback ) {
 	res.render("auth.ejs",{subjects: subjects} );
     }
 }
+
+// Import RSS list
+
+backend.get_10_last_articles( mysql_connection, 
+    function ( lasts_artcicles) {
+	benwa_rss.import_feeds( lasts_artcicles,
+	    function() {
+		benwa_rss.build_xml(
+		    function() {
+		    
+		    }
+		);
+	    }
+	);
+    }
+);
+
+// Serve RSS list...
+
+app.get( '/rss.xml',
+    function(req, res) {
+	benwa_rss.get_xml(
+	    function(xml){
+		res.setHeader('Content-Type', 'text/plain');
+		res.end(xml);
+	    }
+	);
+    }
+);
 
 // And Here we will deal with what to do if a page gets visited
 
@@ -456,5 +519,29 @@ app.post( '/post_update_projet_text/:id',
 		);
 	    }
 	);
+    }
+);
+
+app.get( '/rss/docs.html' ,
+    function ( req, res ) {
+	benwa_rss.get_rss_feed( 
+	    function ( feeds ) {
+		res.render('doc_rss.ejs', { subjects : subjects, feeds : feeds } );
+	    }
+	);
+    }
+);
+
+/**
+ * Code for notification on projects :
+ * 0 : human posted
+ * 1 : modification of avancement
+ * 2 : status modification
+ *
+ * */
+
+app.post( '/post_new_notification/:id',
+    function( req, res) {
+	// work here ^^
     }
 );

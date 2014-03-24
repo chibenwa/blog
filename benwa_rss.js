@@ -3,9 +3,15 @@
  * **/
 
 var feed_author = "Tellier Benoit";
-var blog_url = "https://benwa.minet.net";
+var blog_url = "https://127.0.0.1:8081";
 var blog_title = "Benwa's blog";
 var subjects = ["Web", "Software" , "Kernel", "Admin sys", "Divers"];
+
+var rss_feeds = [ {description: "Flux RSS  principal", explanation: "Ce flux contient l'ensemble des notifications concernant les articles du blog.", url: blog_url+"/rss.xml" }, {description: "Flux RSS  dédié aux projets", explanation: "Ce flux contient l'ensemble des notifications concernant les projets du blog.", url: blog_url+"/rss_prj.xml"} ];
+
+exports.get_rss_feed = function( callback ) {
+    callback( rss_feeds );
+}
 
 // Using markdown for rendering HTML...
 var markdown = require( "markdown" ).markdown;
@@ -28,18 +34,27 @@ var feed = new RSS({
     ttl: '60'
 });
 
+exports.add_feed = function ( article, callback ) {
+    feed.item(
+	{
+	    title:  article.title ,
+	    description: markdown.toHTML( article.text) ,
+	    url: blog_url + '/article/' + article.id ,
+	    categories: subjects[ article.theme ] ,
+	    author: feed_author ,
+	    date: article.date 
+	}
+    );
+    callback();
+};
+
 // A destination du main.js...
 // We will look up what's new in the SQL ...
-exports.import_feed_from_SQL = function(lasts_articles, callback) {
-    for( var i =0; i<lasts_articles.length; i++ ) {
-	feed.item(
-	    {
-		title:  lasts_articles[i].title ,
-		description: lasts_articles[i].text ,
-		url: blog_url + '/article/' + lasts_articles[i].id ,
-		categories: subjects[ article[i].theme ] ,
-		author: feed_author ,
-		date: lasts_articles[i].date 
+exports.import_feeds = function(lasts_articles, callback) {
+    for( var i =0; i< lasts_articles.length; i++ ) {
+	exports.add_feed( lasts_articles[i], 
+	    function() {
+	    
 	    }
 	);
     }
@@ -49,21 +64,8 @@ exports.import_feed_from_SQL = function(lasts_articles, callback) {
 var xml = feed.xml();
 
 // Refresh our cached XML...
-exports.build_xml() = function() {
+exports.build_xml = function( callback ) {
     xml = feed.xml();
-};
-
-exports.add_feed = function ( article, callback ) {
-    feed.item(
-	{
-	    title:  lasts_articles[i].title ,
-	    description: lasts_articles[i].text ,
-	    url: blog_url + '/article/' + lasts_articles[i].id ,
-	    categories: subjects[ article[i].theme ] ,
-	    author: feed_author ,
-	    date: lasts_articles[i].date 
-	}
-    );
     callback();
 };
 

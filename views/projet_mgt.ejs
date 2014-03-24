@@ -49,6 +49,15 @@
 			</div>
 		    </div>
 		</form>
+		<form class="form-horizontal" role="form" action="/post_new_notification/<%= projets[i].id %>" method="post">
+		    <div class="control-group">
+			<div class="controls">
+			    Nouvelle notification : 
+			    <input type="text" name="notification" size="30" class="input-xlarge" placeholder="Votre nouvelle notification..." >
+			    &nbsp;&nbsp;&nbsp;<input type="submit" value="Envoyer" class="btn btn-sm btn-success"/>
+			</div>
+		    </div>
+		</form>
 		<div>
 		    <a href="/admin/projet_mgt/<%=projets[i].id%>"> Édition des détails du projet </a>
 		</div>
