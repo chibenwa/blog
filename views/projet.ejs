@@ -10,6 +10,7 @@
 		<div style="float:right;">
 		    <br/>
 		    <pre><code> git clone <%= projet.git_clone %></code></pre>
+		    <div  style="text-align:right">
 		    <span>
 		    Début du projet : <%= projet.begin.getDate() %>/ <% 
 			if(projet.begin.getMonth() +1 < 10) {
@@ -29,6 +30,7 @@
 		    <%
 			}
 		    %>
+		    </div>
 		</div>
 		
 		<h1><u><b><%= projet.name%></b></u></h1>
@@ -37,6 +39,7 @@
 		    <%= projet.summary%>
 		  </b>
 		</p>
+		<br/>
 		<div class="progress">
 		    <%
 			var myClass = " progress-bar-success";

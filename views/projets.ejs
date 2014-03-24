@@ -16,7 +16,8 @@
 		<div style="float:right;">
 		    <br/>
 		    <pre><code> git clone <%= projets[i].git_clone %></code></pre>
-		    <span>
+		    <div style="text-align:right">
+			<span>
 		    Début du projet : <%= projets[i].begin.getDate() %>/ <% 
 			if(projets[i].begin.getMonth() +1 < 10) {
 		    %>0<%}%><%= projets[i].begin.getMonth() +1 %>/
@@ -35,6 +36,7 @@
 		    <%
 			}
 		    %>
+		    </div>
 		</div>
 		
 		<h2> <a href="/projets/<%= projets[i].id%>"> <%= projets[i].name%> </a></h2>
@@ -43,6 +45,7 @@
 		    <%= projets[i].summary%>
 		  </b>
 		</p>
+		<br/>
 		<br/>
 		<div class="progress">
 		    <%

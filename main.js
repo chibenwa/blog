@@ -293,7 +293,6 @@ app.get('/projets/:projet_id',
 		    } else {
 			backend.select_project_notifs( mysql_connection, mysql.escape(n), 
 			    function( notifs ) {
-				console.log( "Confirm " + notifs.length );
 				res.render("projet.ejs",{ subjects : subjects, projet : projets[0] , markdown : markdown, notifs : notifs });
 			    }
 			);

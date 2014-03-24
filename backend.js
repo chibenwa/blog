@@ -288,7 +288,6 @@ exports.projet_update_ended = function ( mysql_connection, id, ended, callback )
 	    if( err ) {
 		console.log("SQL Error : " + err);
 	    } else {
-		console.log( "Hey tierce !");
 		callback(  );
 	    }
 	}
@@ -347,7 +346,6 @@ exports.create_user = function ( mysql_connection, login, pass, callback ) {
     var sha2 = crypto.createHash('sha1');
     sha2.update(salt + pass);
     var q= "INSERT INTO user(name, pass) VALUES("+ login +", '"+ sha2.digest('hex') +"')";
-    console.log( q );
     mysql_connection.query( q ,
 	function( err, res ) {
 	    if( err ) {
