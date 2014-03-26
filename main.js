@@ -17,50 +17,6 @@ server.listen( 8081 );
 app.use(express.urlencoded());
 app.use(express.json());
 
-// Here we create our sql connection
-
-var mysql = require('mysql');
-
-var connection_params = {
-  host     : 'localhost',
-  user     : 'root',
-  password : 'chibuya',
-  database : 'Node_blog'
-
-};
-
-//~ var mysql_connection = mysql.createConnection( connection_params );
-//~ 
-//~ mysql_connection.connect();
-
-var mysql_connection;
-
-function handleDisconnect() {
-    mysql_connection = mysql.createConnection(connection_params); 
-
-    mysql_connection.connect(
-	function(err) {              // The server is either down or restarting (takes a while sometimes).
-	    if(err) {
-		console.log('error when connecting to db:', err);
-		setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,to avoid a hot loop, and to allow our node script to process asynchronous requests in the meantime. If you're also serving http, display a 503 error.
-	    } 
-	}
-    );
-    mysql_connection.on('error', 
-	function(err) {
-	    console.log('db error', err);
-	    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
-		// Connection to the MySQL server is usually lost due to either server restart, or a connnection idle timeout (the wait_timeout server variable configures this)
-		handleDisconnect();
-	    } else {
-		throw err;
-	    }
-	}
-    );
-}
-
-handleDisconnect();
-
 // Use our backend
 
 var backend = require('./backend');
@@ -103,7 +59,7 @@ function auth_mgt( req, res, callback ) {
 // Import RSS list
 
 function my_feed_import() {
-    backend.get_10_last_articles( mysql_connection, 
+    backend.get_10_last_articles(  
 	function ( lasts_artcicles) {
 	    benwa_rss.import_feeds( lasts_artcicles,
 		function() {
@@ -119,9 +75,9 @@ function my_feed_import() {
 }
 
 function prj_rss_create() {
-    backend.get_projects( mysql_connection,
+    backend.get_projects( 
 	function( projets ) {
-	    backend.get_20_last_notifs(mysql_connection,
+	    backend.get_20_last_notifs(
 		function( notifs ) {
 		    benwa_rss.add_notifs(projets, notifs,
 			function(){
@@ -141,9 +97,9 @@ function prj_rss_create() {
 function renew_prj_feeds() {
     benwa_rss.renew_second_feed(
 	function() {
-	    backend.get_20_last_notifs( mysql_connection,
+	    backend.get_20_last_notifs( 
 		function(notifs) {
-		    backend.get_projects(mysql_connection,
+		    backend.get_projects(
 			function(projets) {
 			    benwa_rss.add_notifs(projets, notifs,
 				function(){
@@ -190,7 +146,8 @@ app.get( '/rss_prj.xml',
 
 app.get( '/', 
     function(req, res) {
-	backend.get_10_last_articles(mysql_connection, function(articles) {
+	backend.get_10_last_articles( 
+	    function(articles) {
 		res.render("index.ejs",{subjects : subjects, articles : articles, markdown : markdown});
 	    }
 	);
@@ -201,7 +158,7 @@ app.get( '/article/:article_id',
     function(req,res) {
 	var n = ~~Number(req.params.article_id);
 	if( String(n) == req.params.article_id ) {
-	    backend.get_article_by_id(mysql_connection, mysql, req.params.article_id,
+	    backend.get_article_by_id( req.params.article_id,
 		function(found, article, comments) {
 		    if( found ) {
 			res.render("article.ejs", {article : article, subjects : subjects, comments : comments, markdown : markdown } );
@@ -218,7 +175,7 @@ app.get( '/article/:article_id',
 
 app.get( '/archives',
     function(req,res) {
-	backend.list_years(mysql_connection,
+	backend.list_years(
 	    function(years) {
 		res.render("archives.ejs", {years : years, subjects : subjects} );
 	    }
@@ -230,7 +187,7 @@ app.get( '/archives/:year',
     function(req,res) {
 	var n = ~~Number(req.params.year);
 	if( String(n) == req.params.year ) {
-	    backend.list_month(mysql_connection, mysql, n,
+	    backend.list_month( n,
 		function(months_id, months) {
 		    res.render("archives_month.ejs", {year : n , subjects : subjects, months_id : months_id, months: months} );
 		}
@@ -246,7 +203,7 @@ app.get( '/archives/:year/:month',
 	var n = ~~Number(req.params.year);
 	var m = ~~Number(req.params.month);
 	if( String(n) == req.params.year && String(m) == req.params.month ) {
-	    backend.list_month_content(mysql_connection, mysql, n, m,
+	    backend.list_month_content( n, m,
 		function(articles, month) {
 		    res.render("archives_month_content.ejs", {year : n , subjects : subjects, month : month, articles: articles} );
 		}
@@ -261,7 +218,7 @@ app.get( '/topics/:sub',
     function(req,res) {
 	var n = ~~Number(req.params.sub);
 	if( String(n) == req.params.sub && n >= 0 && n < subjects.length ) {
-	    backend.list_articles_by_topic(mysql_connection, mysql, n,
+	    backend.list_articles_by_topic( n,
 		function(articles) {
 		    res.render("topics.ejs", {subjects : subjects, articles : articles, current_subject : n} );
 		}
@@ -274,7 +231,7 @@ app.get( '/topics/:sub',
 
 app.get( '/projets',
     function(req,res) {
-	backend.get_projects(mysql_connection, 
+	backend.get_projects( 
 	    function( projets ) {
 		res.render("projets.ejs", { subjects : subjects, projets : projets} );
 	    }
@@ -286,12 +243,12 @@ app.get('/projets/:projet_id',
     function(req, res) {
 	var n = ~~Number( req.params.projet_id );
 	if( String(n) == req.params.projet_id ) {
-	    backend.get_project_by_id(mysql_connection, mysql.escape(req.params.projet_id),
+	    backend.get_project_by_id( req.params.projet_id,
 		function ( projets ) {
 		    if( projets.length == 0 ) {
 			res.render("404.ejs", {subjects : subjects} );
 		    } else {
-			backend.select_project_notifs( mysql_connection, mysql.escape(n), 
+			backend.select_project_notifs( n, 
 			    function( notifs ) {
 				res.render("projet.ejs",{ subjects : subjects, projet : projets[0] , markdown : markdown, notifs : notifs });
 			    }
@@ -307,13 +264,13 @@ app.get('/projets/:projet_id',
 
 app.post( '/post_comment',
     function(req, res) {
-	var comment_title = mysql.escape(req.body.titre);
-	var comment_creator = mysql.escape(req.body.creator);
-	var comment_text = mysql.escape(req.body.text);
-	var comment_article = mysql.escape(req.body.article);
+	var comment_title = req.body.titre;
+	var comment_creator = req.body.creator;
+	var comment_text = req.body.text;
+	var comment_article = req.body.article;
 	var n = ~~Number(req.body.article);
 	if( String(n) == req.body.article ) {
-	    backend.add_comment( mysql_connection, comment_title, comment_creator, comment_text, comment_article);
+	    backend.add_comment( comment_title, comment_creator, comment_text, comment_article);
 	}
 	res.redirect('/article/'+n );
     }
@@ -323,7 +280,7 @@ app.get( '/admin',
     function(req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments_count( mysql_connection,
+		backend.get_waiting_comments_count(
 		    function( waiting_comments ) {
 			res.render("article_edition.ejs", {subjects : subjects, waiting_comments : waiting_comments} );
 		    }
@@ -337,7 +294,7 @@ app.post( '/post_new_article',
     function( req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.create_article( mysql_connection, mysql, req,
+		backend.create_article( req,
 		    function( insert_id ) {
 			benwa_rss.renew_first_feed(
 			    function() {
@@ -356,9 +313,9 @@ app.post( '/post_new_article',
 app.post( '/post_auth',
     function( req, res ) {
 	if( ! is_authentified( req ) ) {
-	    var login = mysql.escape(req.body.login);
+	    var login = req.body.login;
 	    var pass = req.body.pass;
-	    backend.certify_admin( mysql_connection, login,  pass,
+	    backend.certify_admin( login,  pass,
 		function( b ) {
 		    if( b ) {
 			req.session.admin = 0;
@@ -376,7 +333,7 @@ app.get( '/admin/projet_ed',
     function (req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments_count( mysql_connection,
+		backend.get_waiting_comments_count(
 		    function( waiting_comments ) {
 			res.render("projet_edition.ejs", {subjects : subjects, waiting_comments : waiting_comments} );
 		    }
@@ -388,16 +345,16 @@ app.get( '/admin/projet_ed',
 
 app.post( '/post_new_projet',
     function ( req, res) {
-	var name = mysql.escape( req.body.name );
-	var summary = mysql.escape( req.body.summary );
-	var git_clone = mysql.escape( req.body.git_clone );
-	var ended = mysql.escape( req.body.ended );
-	var etat = mysql.escape( req.body.etat );
-	var progress = mysql.escape( req.body.progress );
-	var details = mysql.escape( req.body.details );
+	var name = req.body.name ;
+	var summary = req.body.summary ;
+	var git_clone =  req.body.git_clone ;
+	var ended = req.body.ended ;
+	var etat = req.body.etat ;
+	var progress = req.body.progress ;
+	var details = req.body.details ;
 	auth_mgt( req, res,
 	    function() {
-		backend.create_project( mysql_connection, name, summary, git_clone, ended, etat, progress, details,
+		backend.create_project( name, summary, git_clone, ended, etat, progress, details,
 		    function(insertedId) {
 			res.redirect("/projets/"+insertedId);
 		    }
@@ -411,9 +368,9 @@ app.get( '/admin/projet_mgt',
     function (req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments_count( mysql_connection,
+		backend.get_waiting_comments_count( 
 		    function( waiting_comments ) {
-			backend.get_projects( mysql_connection, 
+			backend.get_projects(
 			    function( projets ) {
 				res.render("projet_mgt.ejs", {subjects : subjects, waiting_comments : waiting_comments, projets: projets} );
 			    }
@@ -427,16 +384,16 @@ app.get( '/admin/projet_mgt',
 
 app.post( '/post_update_avancement/:id',
     function (req, res) {
-        var progress = mysql.escape(req.body.progress);
+        var progress = req.body.progress;
 	var id = req.params.id;
 	auth_mgt(req, res,
 	    function() {
-		backend.projet_update_progress( mysql_connection, mysql.escape(id), progress,
+		backend.projet_update_progress( id, progress,
 		    function () {
-			var projet = mysql.escape( req.params.id );
-			var type = mysql.escape( 1 );
-			var text = mysql.escape( "Réalisé à " + req.body.progress + "%" );
-			backend.insert_new_notif(mysql_connection, projet, type, text,
+			var projet =  req.params.id ;
+			var type =  1 ;
+			var text =  "Réalisé à " + req.body.progress + "%" ;
+			backend.insert_new_notif( projet, type, text,
 			    function () {
 				renew_prj_feeds();
 			    }
@@ -451,16 +408,16 @@ app.post( '/post_update_avancement/:id',
 
 app.post( '/post_update_ended/:id',
     function (req, res) {
-	var ended = mysql.escape(req.body.ended);
+	var ended = req.body.ended;
 	var id = req.params.id;
 	auth_mgt(req, res,
 	    function() {
-		backend.projet_update_ended( mysql_connection, mysql.escape(id), ended,
+		backend.projet_update_ended( id, ended,
 		    function () {
-			var projet = mysql.escape( req.params.id );
-			var type = mysql.escape( 2 );
-			var text = mysql.escape( "Le projet est bouclé" );
-			backend.insert_new_notif(mysql_connection, projet, type, text,
+			var projet =  req.params.id ;
+			var type = 2 ;
+			var text = "Le projet est bouclé" ;
+			backend.insert_new_notif( projet, type, text,
 			    function () {
 				renew_prj_feeds();
 			    }
@@ -475,14 +432,14 @@ app.post( '/post_update_ended/:id',
 
 app.post( '/post_update_etat/:id',
     function (req, res) {
-	var etat = mysql.escape(req.body.etat);
+	var etat = req.body.etat;
 	var id = req.params.id;
 	auth_mgt(req, res,
 	    function() {
-		backend.projet_update_etat( mysql_connection, mysql.escape(id), etat,
+		backend.projet_update_etat( id, etat,
 		    function () {
-			var projet = mysql.escape( req.params.id );
-			var type = mysql.escape( 2 );
+			var projet =  req.params.id ;
+			var type = 2 ;
 			var t;
 			if( req.body.etat == 0 ) {
 			    t = "Reprise du travail";
@@ -497,8 +454,8 @@ app.post( '/post_update_etat/:id',
 				}
 			    }
 			}
-			var text = mysql.escape( t );
-			backend.insert_new_notif(mysql_connection, projet, type, text,
+			var text =  t ;
+			backend.insert_new_notif( projet, type, text,
 			    function () {
 				renew_prj_feeds();
 			    }
@@ -515,9 +472,9 @@ app.get( '/admin/comment_mgt',
     function (req, res ) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments( mysql_connection,
+		backend.get_waiting_comments( 
 		    function( comments ) {
-			backend.get_waiting_comments_count( mysql_connection,
+			backend.get_waiting_comments_count( 
 			    function( waiting_comments ) {
 				res.render("comment_mgt.ejs", { subjects : subjects, waiting_comments : waiting_comments, comments : comments });
 			    }
@@ -534,7 +491,7 @@ app.post( '/post_accept_comment/:id',
 	var id = req.params.id;
 	auth_mgt(req, res,
 	    function() {
-		backend.accept_comment( mysql_connection, mysql.escape(id),
+		backend.accept_comment( id,
 		    function () {
 			res.redirect("/admin/comment_mgt");
 		    }
@@ -549,7 +506,7 @@ app.post( '/post_delete_comment/:id',
 	var id = req.params.id;
 	auth_mgt(req, res,
 	    function() {
-		backend.delete_comment( mysql_connection, mysql.escape(id),
+		backend.delete_comment( id,
 		    function () {
 			res.redirect("/admin/comment_mgt");
 		    }
@@ -563,7 +520,7 @@ app.get( '/admin/Users',
     function( req, res ) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments_count( mysql_connection,
+		backend.get_waiting_comments_count( 
 		    function( waiting_comments ) {
 			res.render("create_user.ejs",{ subjects : subjects, waiting_comments : waiting_comments } );
 		    }
@@ -579,9 +536,9 @@ app.post( '/post_new_user',
 	auth_mgt(req, res,
 	    function() {
 		console.log('plop bis');
-		var login = mysql.escape(req.body.name);
+		var login = req.body.name;
 		var pass = req.body.pass;
-		backend.create_user( mysql_connection, login, pass, 
+		backend.create_user( login, pass, 
 		    function( waiting_comments ) {
 			res.redirect("/admin/Users");
 		    }
@@ -595,9 +552,9 @@ app.get( '/admin/projet_mgt/:id',
     function (req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_project_by_id( mysql_connection, req.params.id,
+		backend.get_project_by_id( req.params.id,
 		    function( projet ) {
-			backend.get_waiting_comments_count( mysql_connection, 
+			backend.get_waiting_comments_count( 
 			    function( waiting_comments ) {
 				res.render("projet_mgt_text_edition.ejs", {subjects : subjects, waiting_comments : waiting_comments, projet: projet[0] } );
 			    }
@@ -613,7 +570,7 @@ app.post( '/post_update_projet_text/:id',
     function ( req, res ) {
 	auth_mgt(req, res,
 	    function() {
-		backend.update_projet_details( mysql_connection, mysql.escape( req.params.id ), mysql.escape( req.body.details ),
+		backend.update_projet_details(  req.params.id ,  req.body.details ,
 		    function() {
 			res.redirect("/projets/"+req.params.id );
 		    }
@@ -646,10 +603,10 @@ app.post( '/post_new_notification/:id',
     function( req, res) {
 	auth_mgt(req, res,
 	    function() {
-		var projet = mysql.escape( req.params.id );
-		var type = mysql.escape( 0 );
-		var text = mysql.escape( req.body.notification );
-		backend.insert_new_notif(mysql_connection, projet, type, text,
+		var projet =  req.params.id ;
+		var type =  0 ;
+		var text =  req.body.notification ;
+		backend.insert_new_notif( projet, type, text,
 		    function() {
 			renew_prj_feeds();
 		    }
@@ -664,9 +621,9 @@ app.get('/admin/mod_article/:id',
     function( req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_article_by_id( mysql_connection, mysql, req.params.id,
+		backend.get_article_by_id( req.params.id,
 		    function(b, article) {
-			backend.get_waiting_comments_count( mysql_connection, 
+			backend.get_waiting_comments_count( 
 			    function( waiting_comments ) {
 				res.render("article_mod.ejs",{subjects : subjects, article : article, waiting_comments : waiting_comments});
 			    }
@@ -682,7 +639,7 @@ app.post( '/post_new_article/:id',
     function( req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.modify_article(mysql_connection, mysql.escape(req.params.id), mysql.escape( req.body.text ), 
+		backend.modify_article(req.params.id, req.body.text , 
 		    function() {
 			
 		    }
@@ -697,9 +654,9 @@ app.get( '/admin/list_articles',
     function( req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_articles( mysql_connection,
+		backend.get_articles(
 		    function( articles ) {
-			backend.get_waiting_comments_count( mysql_connection, 
+			backend.get_waiting_comments_count(
 			    function( waiting_comments ) {
 				res.render( "list_articles.ejs" ,{ waiting_comments : waiting_comments, subjects : subjects, articles : articles });
 			    }
