@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <% include header.ejs %> 
+    <body role="document">
+
+    <% include navbar.ejs %>
+
+    <div class="container theme-showcase" role="main">
+    
+      <% include admin_navbar.ejs  %>
+    
+	<div class="jumbotron">
+		<form class="form-horizontal" role="form" action="/upload_file" method="post" enctype="multipart/form-data">
+		    <legend>Uploader un fichier</legend>
+		    <div class="control-group">
+			<div class="controls">
+			    <input name="file" type="file"/>
+			</div>
+		    </div>
+		    <br/>
+		    Endroit où uploader ( la base est dans le répertoire /public ) :
+		    <br/>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input name="filename" size="35" placeholder="Nom du projet" class="input-xlarge" type="text"/>
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value="Envoyer" class="btn btn-success"/>
+			</div>
+		    </div>
+		</form>
+		<br/>
+		<br/>
+		<form class="form-horizontal" role="form" action="/create_dir" method="post">
+		    <legend>Créer un répertoire</legend>
+		    <div class="control-group">
+			<div class="controls">
+			    <input name="dirname" size="35" placeholder="chemin vers votre dossier. Base : /public ... " class="input-xlarge" type="text"/>
+			</div>
+		    </div>
+		    <br/>
+		    <div class="control-group">
+			<div class="controls">
+			    <input type="submit" value="Envoyer" class="btn btn-success"/>
+			</div>
+		    </div>
+		</form>
+		<br/>
+		<h2>Organisation du dossier /public</h2>
+		<div>
+		    <%
+			for( var i = 0; i < public_content.length; i++ ) {
+			    if( public_content[i].isD ) {
+		    %>
+				<b><%= public_content[i].filePath %></b> <br/>
+		    <%
+			    } else {
+		    %>
+				<%= public_content[i].filePath %> <br/>
+		    <%
+			    }
+			}
+		    %>
+		</div>
+	</div>
+    </div>
+    <script src="/scripts/empty_text_area.js"></script>
+    </body>
+</html>
