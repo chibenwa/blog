@@ -17,6 +17,12 @@ server.listen( 8081 );
 app.use(express.urlencoded());
 app.use(express.json());
 
+// Managing uploads
+
+var file = require('./file');
+app.use(express.methodOverride());
+app.use(express.bodyParser({ keepExtensions: true, uploadDir: 'tmp' }));
+
 // Use our backend
 
 var backend = require('./backend');
@@ -667,3 +673,51 @@ app.get( '/admin/list_articles',
 	);
     }
 );
+
+app.get( '/admin/upload', 
+    function( req, res) {
+	auth_mgt(req, res,
+	    function() {
+		backend.get_waiting_comments_count(
+		    function( waiting_comments ) {
+			var public_content = Array();
+			file.ls( "public", public_content );
+			res.render( "upload.ejs" ,{ waiting_comments : waiting_comments, subjects : subjects, public_content : public_content } );
+		    }
+		);
+	    }
+	);
+    }
+);
+
+app.post( '/upload_file',
+    function( req, res) {
+	auth_mgt(req, res,
+	    function() {
+		if( req.files == undefined && req.files.file == undefined ) {
+		    console.log("No file uploaded...");
+		} else {
+		    file.rename( req.files.file.path, "public/" + req.body.filename ,
+			function() {
+			    console.log( "copying "+req.files.file.path+" to public/"+req.body.filename );
+			}
+		    );
+		}
+		res.redirect("/admin/upload");
+	    }
+	);
+    }
+);
+
+app.post( '/create_dir',
+    function( req, res) {
+	auth_mgt(req, res,
+	    function() {
+		file.createDir( "public/" + req.body.dirname, function() {} );
+		res.redirect("/admin/upload");
+	    }
+	);
+    }
+);
+
+
