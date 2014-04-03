@@ -84,6 +84,21 @@
     </div>
 	
     </div>
+    <%
+	if( article.subject == 0 ) {
+    %>
+	    <script type="text/javascript">
+	    var is_js = true;
+	    </script>
+    <%
+	} else {
+    %>
+	    <script type="text/javascript">
+	    var is_js = false;
+	    </script>
+    <%
+	}
+    %>
     <script src="/scripts/empty_text_area.js"></script>
     <script type="text/javascript" src="/scripts/coloration.js"></script>
     </body>

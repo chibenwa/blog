@@ -4,7 +4,11 @@ var pres = document.getElementsByTagName("pre");
 	 if( my_code != undefined ) {
 	     var text = my_code.innerHTML;
 	     pres[i].innerHTML = text;
-	     pres[i].className = "brush: cpp";
+	     if( is_js ) {
+		pres[i].className = "brush: js";
+	     } else {
+		 pres[i].className = "brush: cpp";
+	     }
 	 } 
      }
      SyntaxHighlighter.all();
