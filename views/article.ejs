@@ -43,7 +43,7 @@
 		    <h4><%=comments[i].title%></h4>
 		    <br/>
 		    <div>
-			<%= markdown.toHTML(comments[i].text) %>
+			<%- markdown.toHTML(comments[i].text) %>
 		    </div>
 		</div>
 	<%
