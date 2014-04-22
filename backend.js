@@ -221,8 +221,8 @@ exports.list_articles_by_topic = function ( n, callback) {
     );
 };
 
-exports.add_comment = function( comment_titre, comment_creator, comment_text, comment_article) {
-    var q = "INSERT INTO commentaire(title, text, creator, date, valid, article) VALUES("+mysql.escape(comment_titre)+", "+mysql.escape(comment_text)+", "+mysql.escape(comment_creator)+", NOW(), '0', "+mysql.escape(comment_article)+")";
+exports.add_comment = function( comment_titre, comment_creator, comment_text, comment_article, gravatar) {
+    var q = "INSERT INTO commentaire(title, text, creator, date, valid, article, gravatar) VALUES("+mysql.escape(comment_titre)+", "+mysql.escape(comment_text)+", "+mysql.escape(comment_creator)+", NOW(), '0', "+mysql.escape(comment_article)+","+mysql.escape(gravatar)+")";
     mysql_connection.query(q,
 	function( err, res ) {
 	    if( err ) {

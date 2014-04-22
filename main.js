@@ -48,6 +48,10 @@ app.use(express.session({secret: 'chibuya'}))
 
 var markdown = require( "markdown" ).markdown;
 
+// Gravatar for comments
+
+var gravatar_back = require('gravatar');
+
 // Usefull function to know if an admin is identified
 
 function is_authentified( req ) {
@@ -274,9 +278,13 @@ app.post( '/post_comment',
 	var comment_creator = req.body.creator;
 	var comment_text = req.body.text;
 	var comment_article = req.body.article;
+	var gravatar = req.body.gravatar;
+	if( gravatar != "" ) {
+	    gravatar = gravatar_back.url( gravatar, {s: 50} );
+	}
 	var n = ~~Number(req.body.article);
 	if( String(n) == req.body.article ) {
-	    backend.add_comment( comment_title, comment_creator, comment_text, comment_article);
+	    backend.add_comment( comment_title, comment_creator, comment_text, comment_article, gravatar);
 	}
 	res.redirect('/article/'+n );
     }

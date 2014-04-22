@@ -39,7 +39,11 @@
 		    <% 
 		    if(comments[i].date.getMonth() +1 < 10) {
 		    %>0<%}%><%= comments[i].date.getMonth() +1 %>/
-		    <%= comments[i].date.getFullYear() %> par <b><%= comments[i].creator %></b></span>
+		    <%= comments[i].date.getFullYear() %> par <b><%= comments[i].creator %></b>
+		    <% if( comments[i].gravatar != "" ) { %>
+			<br/><img src="<%= comments[i].gravatar %>" style="float:right;" />
+		    <% } %>
+		    </span>
 		    <h4><%=comments[i].title%></h4>
 		    <br/>
 		    <div>
@@ -54,19 +58,25 @@
 <legend>Laisser un commentaire</legend>
 <div class="control-group">
   <div class="controls">
-    <input id="titre" name="titre" size="35" placeholder="Titre" class="input-xlarge" type="text"/>
+    <input id="titre" name="titre" size="60" placeholder="Titre" class="input-xlarge" type="text"/>
   </div>
 </div>
 <br/>
 <div class="control-group">
   <div class="controls">
-    <input id="creator" name="creator" size="35" placeholder="Vous êtes ?" class="input-xlarge" required="" type="text"/>    
+    <input id="creator" name="creator" size="60" placeholder="Vous êtes ?" class="input-xlarge" required="" type="text"/>    
+  </div>
+</div>
+<br/>
+<div class="control-group">
+  <div class="controls">
+    <input id="gravatar" name="gravatar" size="60" placeholder="Votre email gravatar ( optionnel, et il n'est pas stocké... )" class="input-xlarge" type="text"/>    
   </div>
 </div>
 <br/>
 <div class="control-group">
   <div class="controls">                     
-    <textarea id="text" name="text" rows="4" cols="50" onclick="empty('text')">Votre commentaire en markdown...</textarea>
+    <textarea id="text" name="text" rows="8" cols="100" onclick="empty('text')">Votre commentaire en markdown...</textarea>
   </div>
 </div>
 <br/>
