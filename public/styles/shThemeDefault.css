@@ -61,6 +61,7 @@
 }
 .syntaxhighlighter .toolbar {
   color: white !important;
+  display: none;
   background: #6ce26c !important;
   border: none !important;
 }
