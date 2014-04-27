@@ -34,7 +34,7 @@ var benwa_rss = require('./benwa_rss');
 // Subject definition ...
 /**
  * Hard code hard core !!!!
- * 
+ *
  * */
 
 var subjects = ["Web", "Software" , "Kernel", "Admin sys", "Divers"];
@@ -69,13 +69,13 @@ function auth_mgt( req, res, callback ) {
 // Import RSS list
 
 function my_feed_import() {
-    backend.get_10_last_articles(  
+    backend.get_10_last_articles(
 	function ( lasts_artcicles) {
 	    benwa_rss.import_feeds( lasts_artcicles,
 		function() {
 		    benwa_rss.build_xml(
 			function() {
-			
+
 			}
 		    );
 		}
@@ -85,7 +85,7 @@ function my_feed_import() {
 }
 
 function prj_rss_create() {
-    backend.get_projects( 
+    backend.get_projects(
 	function( projets ) {
 	    backend.get_20_last_notifs(
 		function( notifs ) {
@@ -93,7 +93,7 @@ function prj_rss_create() {
 			function(){
 			    benwa_rss.build_xml_prj(
 				function() {
-				    
+
 				}
 			    );
 			}
@@ -107,7 +107,7 @@ function prj_rss_create() {
 function renew_prj_feeds() {
     benwa_rss.renew_second_feed(
 	function() {
-	    backend.get_20_last_notifs( 
+	    backend.get_20_last_notifs(
 		function(notifs) {
 		    backend.get_projects(
 			function(projets) {
@@ -154,9 +154,9 @@ app.get( '/rss_prj.xml',
 
 // And Here we will deal with what to do if a page gets visited
 
-app.get( '/', 
+app.get( '/',
     function(req, res) {
-	backend.get_10_last_articles( 
+	backend.get_10_last_articles(
 	    function(articles) {
 		res.render("index.ejs",{subjects : subjects, articles : articles, markdown : markdown});
 	    }
@@ -171,7 +171,7 @@ app.get( '/article/:article_id',
 	    backend.get_article_by_id( req.params.article_id,
 		function(found, article, comments) {
 		    if( found ) {
-			res.render("article.ejs", {article : article, subjects : subjects, comments : comments, markdown : markdown } );
+			res.render("article.ejs", {article : article, subjects : subjects, comments : comments, markdown : markdown, admin: req.session.admin } );
 		    } else {
 			res.render("404.ejs", {subjects : subjects} );
 		    }
@@ -181,6 +181,20 @@ app.get( '/article/:article_id',
 	    res.render("404.ejs", {subjects : subjects} );
 	}
     }
+);
+
+app.post( '/delete_comment',
+	function( req, res ) {
+		auth_mgt(req, res,
+			function() {
+				backend.delete_comment( req.body.comment,
+					function() {
+						res.redirect( "/article/"+ req.body.article );
+					}
+				);
+			}
+		);
+	}
 );
 
 app.get( '/archives',
@@ -241,7 +255,7 @@ app.get( '/topics/:sub',
 
 app.get( '/projets',
     function(req,res) {
-	backend.get_projects( 
+	backend.get_projects(
 	    function( projets ) {
 		res.render("projets.ejs", { subjects : subjects, projets : projets} );
 	    }
@@ -258,7 +272,7 @@ app.get('/projets/:projet_id',
 		    if( projets.length == 0 ) {
 			res.render("404.ejs", {subjects : subjects} );
 		    } else {
-			backend.select_project_notifs( n, 
+			backend.select_project_notifs( n,
 			    function( notifs ) {
 				res.render("projet.ejs",{ subjects : subjects, projet : projets[0] , markdown : markdown, notifs : notifs });
 			    }
@@ -290,7 +304,7 @@ app.post( '/post_comment',
     }
 );
 
-app.get( '/admin', 
+app.get( '/admin',
     function(req, res) {
 	auth_mgt(req, res,
 	    function() {
@@ -382,7 +396,7 @@ app.get( '/admin/projet_mgt',
     function (req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments_count( 
+		backend.get_waiting_comments_count(
 		    function( waiting_comments ) {
 			backend.get_projects(
 			    function( projets ) {
@@ -486,9 +500,9 @@ app.get( '/admin/comment_mgt',
     function (req, res ) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments( 
+		backend.get_waiting_comments(
 		    function( comments ) {
-			backend.get_waiting_comments_count( 
+			backend.get_waiting_comments_count(
 			    function( waiting_comments ) {
 				res.render("comment_mgt.ejs", { subjects : subjects, waiting_comments : waiting_comments, comments : comments });
 			    }
@@ -534,7 +548,7 @@ app.get( '/admin/Users',
     function( req, res ) {
 	auth_mgt(req, res,
 	    function() {
-		backend.get_waiting_comments_count( 
+		backend.get_waiting_comments_count(
 		    function( waiting_comments ) {
 			res.render("create_user.ejs",{ subjects : subjects, waiting_comments : waiting_comments } );
 		    }
@@ -552,7 +566,7 @@ app.post( '/post_new_user',
 		console.log('plop bis');
 		var login = req.body.name;
 		var pass = req.body.pass;
-		backend.create_user( login, pass, 
+		backend.create_user( login, pass,
 		    function( waiting_comments ) {
 			res.redirect("/admin/Users");
 		    }
@@ -568,7 +582,7 @@ app.get( '/admin/projet_mgt/:id',
 	    function() {
 		backend.get_project_by_id( req.params.id,
 		    function( projet ) {
-			backend.get_waiting_comments_count( 
+			backend.get_waiting_comments_count(
 			    function( waiting_comments ) {
 				res.render("projet_mgt_text_edition.ejs", {subjects : subjects, waiting_comments : waiting_comments, projet: projet[0] } );
 			    }
@@ -596,7 +610,7 @@ app.post( '/post_update_projet_text/:id',
 
 app.get( '/rss/docs.html' ,
     function ( req, res ) {
-	benwa_rss.get_rss_feed( 
+	benwa_rss.get_rss_feed(
 	    function ( feeds ) {
 		res.render('doc_rss.ejs', { subjects : subjects, feeds : feeds } );
 	    }
@@ -605,7 +619,7 @@ app.get( '/rss/docs.html' ,
 );
 
 /**
- * 
+ *
  * Code for notification on projects :
  * 0 : human posted
  * 1 : modification of avancement
@@ -637,7 +651,7 @@ app.get('/admin/mod_article/:id',
 	    function() {
 		backend.get_article_by_id( req.params.id,
 		    function(b, article) {
-			backend.get_waiting_comments_count( 
+			backend.get_waiting_comments_count(
 			    function( waiting_comments ) {
 				res.render("article_mod.ejs",{subjects : subjects, article : article, waiting_comments : waiting_comments});
 			    }
@@ -653,9 +667,9 @@ app.post( '/post_new_article/:id',
     function( req, res) {
 	auth_mgt(req, res,
 	    function() {
-		backend.modify_article(req.params.id, req.body.text , 
+		backend.modify_article(req.params.id, req.body.text ,
 		    function() {
-			
+
 		    }
 		);
 		res.redirect('/article/'+ req.params.id );
@@ -682,7 +696,7 @@ app.get( '/admin/list_articles',
     }
 );
 
-app.get( '/admin/upload', 
+app.get( '/admin/upload',
     function( req, res) {
 	auth_mgt(req, res,
 	    function() {

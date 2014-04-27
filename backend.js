@@ -11,26 +11,26 @@ var connection_params = {
 };
 
 //~ var mysql_connection = mysql.createConnection( connection_params );
-//~ 
+//~
 //~ mysql_connection.connect();
 
 var mysql_connection;
 
 function handleDisconnect() {
-    mysql_connection = mysql.createConnection(connection_params); 
+    mysql_connection = mysql.createConnection(connection_params);
 
     mysql_connection.connect(
 	function(err) {              // The server is either down or restarting (takes a while sometimes).
 	    if(err) {
 		console.log('error when connecting to db:', err);
 		setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,to avoid a hot loop, and to allow our node script to process asynchronous requests in the meantime. If you're also serving http, display a 503 error.
-	    } 
+	    }
 	}
     );
-    mysql_connection.on('error', 
+    mysql_connection.on('error',
 	function(err) {
 	    console.log('db error', err);
-	    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+	    if(err.code === 'PROTOCOL_CONNECTION_LOST') {
 		// Connection to the MySQL server is usually lost due to either server restart, or a connnection idle timeout (the wait_timeout server variable configures this)
 		handleDisconnect();
 	    } else {
@@ -50,7 +50,7 @@ var salt = "benwablog";
 
 var crypto = require('crypto')
   , shasum = crypto.createHash('sha1');
-  
+
 // utils...
 
 function to_month(n) {
@@ -97,7 +97,7 @@ function to_month(n) {
 // Here we will interact with our Database ...
 
 exports.get_10_last_articles = function( callback) {
-    mysql_connection.query("SELECT * FROM article ORDER BY DATE  DESC LIMIT 10", 
+    mysql_connection.query("SELECT * FROM article ORDER BY DATE  DESC LIMIT 10",
 	function(err, q_res) {
 	    if( err ) {
 		console.log("SQL error : " + err );
@@ -109,7 +109,7 @@ exports.get_10_last_articles = function( callback) {
 };
 
 exports.get_article_by_id = function(id, callback) {
-    mysql_connection.query("SELECT * FROM article WHERE id="+mysql.escape(id), 
+    mysql_connection.query("SELECT * FROM article WHERE id="+mysql.escape(id),
 	function (err, res) {
 	    if( err ) {
 		console.log( "SQL Error : " + err );
@@ -133,7 +133,7 @@ exports.get_article_by_id = function(id, callback) {
 };
 
 exports.list_years = function( callback) {
-    mysql_connection.query("SELECT year FROM article GROUP BY year ORDER BY year DESC", 
+    mysql_connection.query("SELECT year FROM article GROUP BY year ORDER BY year DESC",
 	function (err, res) {
 	    if( err ) {
 		console.log( "SQL Error : " + err );
@@ -222,7 +222,7 @@ exports.list_articles_by_topic = function ( n, callback) {
 };
 
 exports.add_comment = function( comment_titre, comment_creator, comment_text, comment_article, gravatar) {
-    var q = "INSERT INTO commentaire(title, text, creator, date, valid, article, gravatar) VALUES("+mysql.escape(comment_titre)+", "+mysql.escape(comment_text)+", "+mysql.escape(comment_creator)+", NOW(), '0', "+mysql.escape(comment_article)+","+mysql.escape(gravatar)+")";
+    var q = "INSERT INTO commentaire(title, text, creator, date, valid, article, gravatar) VALUES("+mysql.escape(comment_titre)+", "+mysql.escape(comment_text)+", "+mysql.escape(comment_creator)+", NOW(), '1', "+mysql.escape(comment_article)+","+mysql.escape(gravatar)+")";
     mysql_connection.query(q,
 	function( err, res ) {
 	    if( err ) {
@@ -257,7 +257,7 @@ exports.get_project_by_id = function( projet_id, callback) {
 };
 
 exports.get_waiting_comments_count = function( callback ) {
-    mysql_connection.query("SELECT COUNT(*) AS comment_nb FROM commentaire WHERE valid='0'", 
+    mysql_connection.query("SELECT COUNT(*) AS comment_nb FROM commentaire WHERE valid='0'",
 	function( err, res ) {
 	    if( err ) {
 		console.log("SQL Error : " + err);
@@ -401,7 +401,7 @@ exports.create_user = function (  login, pass, callback ) {
 	    }
 	}
     );
-    
+
 };
 
 exports.update_projet_details = function( id, details, callback ) {

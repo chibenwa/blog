@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html>
-    <% include header.ejs %> 
+    <% include header.ejs %>
     <body role="document">
 
     <% include navbar.ejs %>
 
     <div class="container theme-showcase" role="main">
 	<div class="jumbotron">
-	    
+
 	    <span style="float:right;"><%= article.date.getDate() %>/
-		<% 
+		<%
 		    if(article.date.getMonth() +1 < 10) {
 		%>0<%}%><%= article.date.getMonth() +1 %>/
 		<%= article.date.getFullYear() %></span>
-	    
+
 	    <h1> <%= article.title %></h1>
-	    
+
 	    <div id="resume">
 		<b><%= article.summary %></b>
 	    </div>
@@ -23,37 +23,45 @@
 	    <div id="content">
 		<%- markdown.toHTML(article.text) %>
 	    </div>
-	    
+
 	</div>
 
-    
+
 	<div class="page-header">
 	    <h2>Commentaires</h2>
 	</div>
-	
-	<% 
+
+	<%
 	    for( var i = 0; i< comments.length; i++ ) {
 	%>
 		<div class="page-header">
 		    <span style="float:right;">Le <%= comments[i].date.getDate() %>/
-		    <% 
+		    <%
 		    if(comments[i].date.getMonth() +1 < 10) {
 		    %>0<%}%><%= comments[i].date.getMonth() +1 %>/
 		    <%= comments[i].date.getFullYear() %> par <b><%= comments[i].creator %></b>
 		    <% if( comments[i].gravatar != "" ) { %>
+
 			<br/><img src="<%= comments[i].gravatar %>" style="float:right;" />
-		    <% } %>
+		    <% }
+		    if( admin == 0 ) {%>
+		    <br/> <form class="form-horizontal" role="form" action="/delete_comment" method="post">
+				<input type="hidden" name="comment" value="<%= comments[i].id %>" />
+				<input type="hidden" name="article" value="<%= article.id %>" />
+				<input type="submit" value="Supprimer ce commentaire" class="btn btn-danger"/>
+		    </form>
+			<% } %>
 		    </span>
 		    <h4><%=comments[i].title%></h4>
 		    <br/>
 		    <div>
-			<%- markdown.toHTML(comments[i].text) %>
+			<%- markdown.toHTML(comments[i].text) %><br/>
 		    </div>
 		</div>
 	<%
 	    }
 	%>
-	
+
 <form class="form-horizontal" role="form" action="/post_comment" method="post">
 <legend>Laisser un commentaire</legend>
 <div class="control-group">
@@ -64,7 +72,7 @@
 <br/>
 <div class="control-group">
   <div class="controls">
-    <input id="creator" name="creator" size="60" placeholder="Vous êtes ?" class="input-xlarge" required="" type="text"/>    
+    <input id="creator" name="creator" size="60" placeholder="Vous êtes ?" class="input-xlarge" required="" type="text"/>
   </div>
 </div>
 <br/>
@@ -75,7 +83,7 @@
 </div>
 <br/>
 <div class="control-group">
-  <div class="controls">                     
+  <div class="controls">
     <textarea id="text" name="text" rows="8" cols="100" onclick="empty('text')">Votre commentaire en markdown...</textarea>
   </div>
 </div>
@@ -89,10 +97,10 @@
 
 </form>
     <br/>
-    <div class="alert alert-info">
+   <!-- <div class="alert alert-info">
        <strong>Les commentaires doivent être acceptés par le modérateur.</strong> Ils ne seront affichés qu'une fois modérés.
-    </div>
-	
+    </div>-->
+
     </div>
     <%
 	if( article.subject == 0 ) {
