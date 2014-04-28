@@ -474,6 +474,7 @@ exports.get_articles = function ( callback ) {
 };
 
 exports.get_articles_by_tag = function( tag, callback ) {
+    console.log("Looking to you !!!");
     mysql_connection.query("SELECT * FROM article WHERE tags LIKE '%"+tag+"%' ORDER BY date DESC",
 	function( err, res ) {
 	    if( err ) {
