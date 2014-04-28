@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <% include header.ejs %> 
+    <body role="document">
+
+    <% include navbar.ejs %>
+
+    <div class="container theme-showcase" role="main">
+	<div class="jumbotron">
+	
+	    <h1>Tag : <b><%= tag %></b> </h1>
+	    
+	    <br/>
+	    
+	    <%
+		for( var i = 0; i < articles.length; i++ ) {
+	    %>
+	    <div>
+		<span style="float:right;"><%= articles[i].date.getDate() %>/
+		<% 
+		    if(articles[i].date.getMonth() +1 < 10) {
+		%>0<%}%><%= articles[i].date.getMonth() +1 %>/
+		<%= articles[i].date.getFullYear() %></span>
+		<h3><a href="/article/<%= articles[i].id %>"><%= articles[i].title %></a></h3>
+		Tags : <%
+			    if( articles[i].tags != "" && articles[i].tags.length > 0 ) {
+				var array = articles[i].tags.split(", ");
+				for( var j = 0; j < array.length; j++ ) {
+			%>
+			    <a href="/tag/<%= array[j] %>"><%= array[j] %></a>
+			<%
+				}
+			    }
+			%>
+		<br/>
+		<div>
+		    <b>
+			<%=articles[i].summary%>
+		    </b>
+		</div>
+		<br/><br/>
+	    </div>
+	    <%
+		}
+	    %>
+	    
+	</div>
+    </div>
+
+
+    </body>
+</html>
