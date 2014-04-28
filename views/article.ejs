@@ -15,6 +15,17 @@
 		<%= article.date.getFullYear() %></span>
 
 	    <h1> <%= article.title %></h1>
+	    Tags : <%
+		if( article.tags != "" ) {
+		    var array = article.tags.split(", ");
+		    for( var i = 0; i < array.length; i++ ) {
+		    %>
+			<a href="/tag/<%= array[i] %>"><%= array[i] %></a>
+		<%
+			}
+		    }
+		%>
+	    <br/><br/>
 
 	    <div id="resume">
 		<b><%= article.summary %></b>

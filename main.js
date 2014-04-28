@@ -158,7 +158,7 @@ app.get( '/',
     function(req, res) {
 	backend.get_10_last_articles(
 	    function(articles) {
-		res.render("index.ejs",{subjects : subjects, articles : articles, markdown : markdown});
+		res.render("index.ejs",{subjects : subjects, articles : articles, markdown : markdown, console: console});
 	    }
 	);
     }
@@ -250,6 +250,16 @@ app.get( '/topics/:sub',
 	} else {
 	    res.render("404.ejs", {subjects : subjects} );
 	}
+    }
+);
+
+app.get('/tag/:tag_name',
+    function(req, res ) {
+	backend.get_articles_by_tag( req.params.tag_name,
+	    function(articles) {
+		    res.render("tag.ejs", {subjects : subjects, articles : articles, tag : req.params.tag_name } );
+	    }
+	);
     }
 );
 

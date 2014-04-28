@@ -18,6 +18,18 @@
 		%>0<%}%><%= articles[i].date.getMonth() +1 %>/
 		<%= articles[i].date.getFullYear() %></span>
 		<h2> <a href="/article/<%= articles[i].id %>"><%= articles[i].title %></a></h2>
+Tags : 
+<%
+			    if( articles[i].tags != "" && articles[i].tags.length > 0 ) {
+				var array = articles[i].tags.split(", ");
+				for( var j = 0; j < array.length; j++ ) {
+			%>
+			    <a href="/tag/<%= array[j] %>"><%= array[j] %></a>
+			<%
+				}
+			    }
+			%>
+		<br/>
 		<div id="resume">
 		    <b><%= articles[i].summary %></b>
 		</div>

@@ -109,7 +109,7 @@ exports.get_10_last_articles = function( callback) {
 };
 
 exports.get_article_by_id = function(id, callback) {
-    mysql_connection.query("SELECT * FROM article WHERE id="+mysql.escape(id),
+    mysql_connection.query("SELECT * FROM article WHERE article.id="+mysql.escape(id),
 	function (err, res) {
 	    if( err ) {
 		console.log( "SQL Error : " + err );
@@ -270,7 +270,7 @@ exports.get_waiting_comments_count = function( callback ) {
 
 exports.create_article = function( req, callback ) {
     var d = new Date;
-    mysql_connection.query("INSERT INTO article(title, summary, text, date, year, month, day, subject) VALUES("+mysql.escape(req.body.title)+", "+mysql.escape(req.body.summary)+", "+mysql.escape(req.body.text)+", NOW(),"+mysql.escape(d.getFullYear())+", "+mysql.escape(d.getMonth())+", "+mysql.escape(d.getDate())+", "+mysql.escape(req.body.theme)+")",
+    mysql_connection.query("INSERT INTO article(title, summary, text, date, year, month, day, subject, tags) VALUES("+mysql.escape(req.body.title)+", "+mysql.escape(req.body.summary)+", "+mysql.escape(req.body.text)+", NOW(),"+mysql.escape(d.getFullYear())+", "+mysql.escape(d.getMonth())+", "+mysql.escape(d.getDate())+", "+mysql.escape(req.body.theme)+", "+mysql.escape(req.body.tags)+")",
 	function( err, res ) {
 	    if( err ) {
 		console.log("SQL Error : " + err);
@@ -467,6 +467,18 @@ exports.modify_article = function ( id, text, callback) {
 
 exports.get_articles = function ( callback ) {
     mysql_connection.query("SELECT * FROM article ORDER BY date DESC",
+	function( err, res ) {
+	    if( err ) {
+		console.log("SQL Error : " + err);
+	    } else {
+		callback(res);
+	    }
+	}
+    );
+};
+
+exports.get_articles_by_tag = function( tag, callback ) {
+    mysql_connection.query("SELECT * FROM article WHERE tags LIKE '%"+tag+"%' ORDER BY date DESC",
 	function( err, res ) {
 	    if( err ) {
 		console.log("SQL Error : " + err);
