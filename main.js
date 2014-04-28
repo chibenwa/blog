@@ -255,11 +255,11 @@ app.get( '/topics/:sub',
 
 app.get('/tag/:tag_name',
     function(req, res ) {
-	backend.get_articles_by_tag( req.params.tag_name,
-	    function(articles) {
-		    res.render("tag.ejs", {subjects : subjects, articles : articles, tag : req.params.tag_name } );
-	    }
-	);
+	//~ backend.get_articles_by_tag( req.params.tag_name,
+	    //~ function(articles) {
+		    //~ res.render("tag.ejs", {subjects : subjects, articles : articles, tag : req.params.tag_name } );
+	    //~ }
+	//~ );
     }
 );
 
@@ -752,4 +752,8 @@ app.post( '/create_dir',
     }
 );
 
-
+app.get( '/contact',
+    function(req, res) {
+	res.render("contact.ejs" ,{ subjects : subjects } );
+    }
+);

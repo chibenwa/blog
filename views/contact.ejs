@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <% include header.ejs %> 
+    <body role="document">
+
+<% include navbar.ejs %>
+
+    <div class="container theme-showcase" role="main">
+	<div class="jumbotron">
+	<div id="left_panel" style="float:right; margin-left:40px" ><img src="/images/moi.jpg" /><br/><br/>
+	<img src="/images/logos/cpp-logo.jpg"/><img src="/images/logos/qt-logo.jpg"/><br/>
+	<img src="/images/logos/nodejs-logo.jpg"/><br/>
+	<img src="/images/logos/mariadb-logo.png"/><br/><img src="/images/logos/rabbit.jpg"/><br/><img src="/images/logos/memcached.png"/></div>
+	    <h1> À propos de moi </h1>
+	    <p>Étudiant à Télécom SudParis, je suis passionné par l'informatique. <br/><br/>
+        
+        J'ai un petit faible pour tout ce qui tourne autours du <b>C++</b>. J'apprécie moins le Web mais aime quand même bien <b>node.js</b> qui a une communauté certes jeune et dispersée, mais très active. Par ailleurs, suite à mon implication dans l'association de réseau de mon école, j'ai aussi acquis une expérience en <b>Administration système</b>.<br/><br/>
+        
+        Ce blog est pour moi l'occasion de partager les différents petits tests que j'ai pu réaliser, les retours d'expériences que j'ai pu avoir. Clairement ce blog s'adresse à un public qui, si il n'est pas averti, devra être curieux et ne devra pas hésiter à approfondir ( ou poser des question via les commentaires ) pour comprendre la teneur des articles.<br/><br/>
+        
+        J'ai par ailleurs remarqué que je retenais bien mieux les choses si je prends le temps de les expliquer. Ce blog est donc aussi pour moi une aubaine !
+        
+        En vous souhaitant une bonne lecture !<br/>
+	    </p>
+	    <h2> Contact </h2>
+	    
+	    Vous pouvez me joindre par <a href="mailto:benwa1@orange.fr?Subject=[Benwa-blog]%20Your%20subject">mail</a>.
+	    
+	   <br/><br/> Voici par ailleurs ma clé PGP : <br/><br/>
+<textarea rows="15" cols="80" >
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+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
+FljNy+WZyxO2Szyg/X/0XA==
+=I/Tz
+-----END PGP PUBLIC KEY BLOCK-----
+	    </textarea>
+	    <h3>Mentions légales</h3>
+	    Le contenu de ce site est disponible sous license Créative common Attribution 4.0. Plus de détails sont disponibles sur <a href="http://creativecommons.org/licenses/by/4.0/">cette page</a>.<br/><br/>
+	    
+	    Ce site est hébergé par l'association MiNET, hébergeur et fournisseur d'accès associatif pour la résidence étudiante du campus de Télécom SudParis. Voici le <a href="http://minet.net">site web</a> de l'association.<br/><br/>
+	    Les seules données personnelles conservées sont les liens vers les Gravatars en commentaire. Les adresses mails ( facultatives ) utilisées pour obtenir les dits liens Gravatars ne sont pas gardées ni en cache ni dans une base de donnée. Vous possédez par ailleurs un droit de retrait des dites images au près de Gravatar.
+	</div>
+    </div>
+
+
+    </body>
+</html>

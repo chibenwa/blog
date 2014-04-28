@@ -10,10 +10,6 @@ var connection_params = {
 
 };
 
-//~ var mysql_connection = mysql.createConnection( connection_params );
-//~
-//~ mysql_connection.connect();
-
 var mysql_connection;
 
 function handleDisconnect() {
