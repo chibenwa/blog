@@ -3,7 +3,7 @@
  * **/
 
 var feed_author = "Tellier Benoit";
-var blog_url = "https://127.0.0.1:8081";
+var blog_url = "http://blog.btellier.com";
 var blog_title = "Benwa's blog";
 var subjects = ["Web", "Software" , "Kernel", "Admin sys", "Divers"];
 
