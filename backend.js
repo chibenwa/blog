@@ -5,8 +5,8 @@ var mysql = require('mysql');
 var connection_params = {
   host     : 'localhost',
   user     : 'root',
-  password : 'chibuya',
-  database : 'Node_blog'
+  password : '#3vilGen1us!',
+  database : '_blog'
 
 };
 
